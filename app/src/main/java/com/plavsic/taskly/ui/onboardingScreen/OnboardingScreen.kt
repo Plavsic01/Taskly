@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.plavsic.taskly.R
+import com.plavsic.taskly.navigation.NavigationGraph
 import com.plavsic.taskly.ui.theme.Purple
 import kotlinx.coroutines.launch
 
@@ -149,7 +150,7 @@ private fun NavigationView(
             onClick = {
                 // This means its on GET STARTED (Last page of onboarding pages)
                 if(state.currentPage == onboardingData.size - 1){
-                    navController.navigate("start_screen")
+                    navController.navigate(NavigationGraph.StartScreen.route)
                 }
 
                 if (state.currentPage < onboardingData.size - 1) {
