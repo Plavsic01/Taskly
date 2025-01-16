@@ -16,7 +16,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     override suspend fun userUid(): String = auth.currentUser?.uid ?: ""
 
-    override suspend fun isLoggedIn(): Boolean = auth.currentUser == null
+    override suspend fun isLoggedIn(): Boolean = auth.currentUser != null
 
     override suspend fun logout() = auth.signOut()
 

@@ -66,6 +66,7 @@ fun LoginScreen(
             InputSection(
                 state = email,
                 text = "Email",
+                isEmail = true,
                 placeholder = "Enter your Email"
             )
 
@@ -95,7 +96,6 @@ fun LoginScreen(
                 )
                 SeparatorLine()
             }
-//            AuthenticationOptions(forLogin = true)
 
             AuthenticationButton(text = "Login with Google") { credential ->
                 loginViewModel.loginWithGoogle(credential)
@@ -163,7 +163,7 @@ fun LoginState(
                 }
 
                 is Response.Success -> {
-                    Log.i("SIGNINGOOGLe",it.data.user!!.email.toString())
+                    Log.i("Login",it.data.user!!.email.toString())
                     Log.i("Login state -> ", "Success")
                     isLoading.value = false
                     onSuccess()

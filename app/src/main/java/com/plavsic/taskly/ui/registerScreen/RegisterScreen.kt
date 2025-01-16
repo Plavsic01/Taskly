@@ -68,6 +68,7 @@ fun RegisterScreen(
             InputSection(
                 state = email,
                 text = "Email",
+                isEmail = true,
                 placeholder = "Enter your Email"
             )
 
@@ -107,7 +108,6 @@ fun RegisterScreen(
                 )
                 SeparatorLine()
             }
-//            AuthenticationOptions(forLogin = false)
 
             AuthenticationButton(text = "Register with Google") { credential ->
                 registerViewModel.registerWithGoogle(credential)

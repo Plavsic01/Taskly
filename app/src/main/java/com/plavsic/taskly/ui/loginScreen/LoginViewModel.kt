@@ -16,13 +16,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+open class LoginViewModel @Inject constructor(
     private val authenticationRepository: AuthenticationRepository
 ) : ViewModel(){
 
     private val _loginFlow = MutableSharedFlow<Response<AuthResult>>()
     val loginFlow = _loginFlow
-
 
     fun login(email: String, password: String) = viewModelScope.launch {
         authenticationRepository.login(email, password).collect { response ->

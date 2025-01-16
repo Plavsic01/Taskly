@@ -58,8 +58,12 @@ dependencies {
 //    Dagger-Hilt
     implementation(libs.hilt.android.v2511)
     implementation(libs.googleid)
+    implementation(libs.androidx.runtime.livedata)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose.v100)
+
+//    Coil Image
+    implementation(libs.coil.compose)
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
