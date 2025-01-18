@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -155,23 +156,24 @@ fun AddTaskDialog(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row {
+
                             Icon(
                                 painter = painterResource(R.drawable.timer),
-                                contentDescription = "Timer"
+                                contentDescription = "Timer",
                             )
 
                             Spacer(modifier = Modifier.width(15.dp))
 
                             Icon(
                                 painter = painterResource(R.drawable.tag),
-                                contentDescription = "Tag"
+                                contentDescription = "Tag",
                             )
 
                             Spacer(modifier = Modifier.width(15.dp))
 
                             Icon(
                                 painter = painterResource(R.drawable.flag),
-                                contentDescription = "Flag"
+                                contentDescription = "Flag",
                             )
                         }
 
@@ -181,15 +183,13 @@ fun AddTaskDialog(
                             tint = Color(0xFF8687E7)
                         )
                     }
-
-
-
-
                 }
             }
         }
     }
 }
+
+
 
 
 

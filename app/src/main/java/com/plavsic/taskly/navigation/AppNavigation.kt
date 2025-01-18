@@ -13,6 +13,7 @@ import com.plavsic.taskly.ui.homeScreen.HomeScreen
 import com.plavsic.taskly.ui.loginScreen.LoginScreen
 import com.plavsic.taskly.ui.onboardingScreen.OnboardingScreen
 import com.plavsic.taskly.ui.registerScreen.RegisterScreen
+import com.plavsic.taskly.ui.shared.calendar.CalendarView
 import com.plavsic.taskly.ui.startScreen.StartScreen
 
 
@@ -25,7 +26,8 @@ fun AppNavigation(
 //    Log.i("PHOTO",FirebaseAuth.getInstance().currentUser!!.photoUrl.toString())
 
     NavHost(navController = navController, startDestination = if(navigationViewModel.isLoggedIn.value)
-        NavigationGraph.HomeScreen.route
+//        NavigationGraph.HomeScreen.route
+        "calendar"
     else
         NavigationGraph.OnboardingScreen.route
     ) {
@@ -45,6 +47,10 @@ fun AppNavigation(
         }
         composable(NavigationGraph.HomeScreen.route) {
             BottomNavigationBar()
+        }
+
+        composable("calendar") {
+            CalendarView()
         }
 
     }
