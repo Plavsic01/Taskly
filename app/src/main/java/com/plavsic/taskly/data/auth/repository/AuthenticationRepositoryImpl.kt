@@ -1,10 +1,10 @@
-package com.plavsic.taskly.data.repository
+package com.plavsic.taskly.data.auth.repository
 
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.plavsic.taskly.core.Response
-import com.plavsic.taskly.domain.repository.AuthenticationRepository
+import com.plavsic.taskly.domain.auth.repository.AuthenticationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await

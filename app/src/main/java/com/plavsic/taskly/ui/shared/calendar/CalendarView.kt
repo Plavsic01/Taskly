@@ -1,11 +1,8 @@
 package com.plavsic.taskly.ui.shared.calendar
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,29 +30,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.plavsic.taskly.ui.theme.BlackForDayCalendar
-import com.plavsic.taskly.ui.theme.Gray
+import com.plavsic.taskly.ui.shared.common.Divider
+import com.plavsic.taskly.ui.theme.Black
+import com.plavsic.taskly.ui.theme.DarkerGray
 import com.plavsic.taskly.ui.theme.Purple
 import java.time.LocalDate
 import java.time.YearMonth
 
 @Composable
-fun CalendarView(){
+fun CalendarView(
+    chosenDate: LocalDate?,
+    modifier:Modifier = Modifier,
+    onSelectedDate:(LocalDate?) -> Unit
+){
 
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
-    var selectedDate:LocalDate? by remember { mutableStateOf(null) }
+    var selectedDate:LocalDate? by remember { mutableStateOf(chosenDate) }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 10.dp),
+            .background(color = DarkerGray)
+            .padding(horizontal = 10.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -74,22 +73,15 @@ fun CalendarView(){
 
 //        Separator line
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(color = Gray)
-        )
+        Divider()
 
         CalendarGrid(
             month = currentMonth,
+            chosenDate = chosenDate,
             onSelectedDate = {
                 selectedDate = it
+                onSelectedDate(it)
             }
-        )
-
-        Text(
-            text = selectedDate.toString()
         )
     }
 }
@@ -146,6 +138,7 @@ fun CalendarHeader(
 
 @Composable
 fun CalendarGrid(
+    chosenDate: LocalDate?,
     month: YearMonth,
     onSelectedDate:(LocalDate) -> Unit
 ){
@@ -160,8 +153,7 @@ fun CalendarGrid(
     // create new list and for first n indexes (firstDayOfWeek) fill them with null and add valid dates
     val allDates = List<LocalDate?>(firstDayOfWeek) { null } + dates
 
-
-    val selectedDate:MutableState<LocalDate?> = remember { mutableStateOf(null) }
+    val selectedDate:MutableState<LocalDate?> = remember { mutableStateOf(chosenDate) }
 
     LazyVerticalGrid(
         contentPadding = PaddingValues(10.dp),
@@ -190,10 +182,11 @@ fun DayItem(
     onSelectedDate: () -> Unit
 ){
 
+
     val itemColor:Color = if(selectedDate != null && selectedDate == date){
          Purple
     }else{
-        BlackForDayCalendar
+        Black
     }
 
     Text(
@@ -261,18 +254,18 @@ sealed class DaysInWeek(val name:String,val color:Color){
     data object Monday : DaysInWeek(name = "MON", color = Color.White)
     data object Tuesday : DaysInWeek(name = "TUE", color = Color.White)
     data object Wednesday : DaysInWeek(name = "WED", color = Color.White)
-    data object Thursday : DaysInWeek(name = "THU", color = Color.White)
-    data object Friday : DaysInWeek(name = "FRI", color = Color.White)
+    data object Thursday : DaysInWeek(name = "THU  ", color = Color.White)
+    data object Friday : DaysInWeek(name = "FRI  ", color = Color.White)
     data object Saturday : DaysInWeek(name = "SAT", color = Color.Red)
     data object Sunday : DaysInWeek(name = "SUN", color = Color.Red)
 }
 
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun CalendarViewPreview(){
-    CalendarView()
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun CalendarViewPreview(){
+//    CalendarView(modifier = Modifier){}
+//}
 
 
 

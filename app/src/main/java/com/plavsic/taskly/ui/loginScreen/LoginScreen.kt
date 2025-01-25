@@ -123,7 +123,7 @@ fun LoginScreen(
             isEnabled.value = false
         },
         onSuccess = {
-            navController.navigate(NavigationGraph.HomeScreen.route)
+            navController.navigate(NavigationGraph.BottomNavigationBar.route)
         },
         onError = {
             Log.i("Error","Error Occurred")

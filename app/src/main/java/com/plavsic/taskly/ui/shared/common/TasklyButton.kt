@@ -8,12 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.plavsic.taskly.navigation.NoRippleInteractionSource
 
 
 @Composable
 fun TasklyButton(
     onClick: () -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     text:String,
     containerColor: Color,
     contentColor: Color,

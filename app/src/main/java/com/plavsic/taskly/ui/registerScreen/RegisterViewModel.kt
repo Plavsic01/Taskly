@@ -9,7 +9,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import com.google.firebase.auth.AuthResult
 import com.plavsic.taskly.core.Response
-import com.plavsic.taskly.domain.repository.AuthenticationRepository
+import com.plavsic.taskly.domain.auth.repository.AuthenticationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch

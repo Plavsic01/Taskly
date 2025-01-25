@@ -4,9 +4,7 @@ package com.plavsic.taskly.ui.homeScreen
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,40 +12,39 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.plavsic.taskly.R
-import com.plavsic.taskly.ui.shared.common.TasklyTextField
-import com.plavsic.taskly.ui.theme.DarkerGray
-import com.plavsic.taskly.ui.theme.Gray
+import com.plavsic.taskly.core.Response
+import com.plavsic.taskly.domain.task.model.Task
+import com.plavsic.taskly.ui.shared.task.TaskViewModel
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    taskViewModel: TaskViewModel = hiltViewModel()
+) {
+    val tasksState = taskViewModel.tasksState.collectAsStateWithLifecycle()
+    var tasks by remember { mutableStateOf<List<Task>>(emptyList()) }
 
     val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
     val offsetY = screenHeightDp * 0.1f
@@ -86,6 +83,13 @@ fun HomeScreen() {
                 text = "What do you want to do today?",
                 fontSize = 20.sp
             )
+
+            Text(
+                text = tasks.toString(),
+                fontSize = 20.sp
+            )
+
+
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = "Tap + to add your tasks",
@@ -93,101 +97,44 @@ fun HomeScreen() {
             )
         }
     }
+    GetTasksState(
+            state = tasksState,
+    onLoading = {},
+    onSuccess = {
+        tasks = it
+    },
+    onError = {}
+    )
 }
+
+
 
 
 @Composable
-fun AddTaskDialog(
-    showDialog:MutableState<Boolean>
+fun GetTasksState(
+    state:State<Response<List<Task>>>,
+    onLoading:() -> Unit,
+    onSuccess:(List<Task>) -> Unit,
+    onError:() -> Unit
 ){
-    val taskTitle = remember { mutableStateOf("") }
-    val taskDescription = remember { mutableStateOf("") }
+    when(state.value){
+        is Response.Loading -> {
+            onLoading()
+            Log.i("successData","LOADING")
+        }
 
-    if(showDialog.value) {
-        Dialog(onDismissRequest = {
-            showDialog.value = false
-        }) {
-            Card(
-                modifier = Modifier
-                    .height(250.dp)
-                    .fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = DarkerGray
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(all = 20.dp)
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(bottom = 8.dp),
-                        text = "Add Task",
-                        fontSize = 18.sp
-                    )
+        is Response.Success -> {
+            val tasks = (state.value as Response.Success<List<Task>>).data
+            Log.i("successData",tasks.toString())
+            onSuccess(tasks)
+        }
 
-
-                    TasklyTextField(
-                        state = taskTitle,
-                        placeholder = "Task",
-                        unfocusedContainerColor = DarkerGray,
-                        showBorder = false,
-                        onValueChange = {
-                            taskTitle.value = it
-                        }
-                    )
-
-
-                    TasklyTextField(
-                        state = taskDescription,
-                        placeholder = "Description",
-                        unfocusedContainerColor = DarkerGray,
-                        showBorder = false,
-                        onValueChange = {
-                            taskDescription.value = it
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // ICONS
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row {
-
-                            Icon(
-                                painter = painterResource(R.drawable.timer),
-                                contentDescription = "Timer",
-                            )
-
-                            Spacer(modifier = Modifier.width(15.dp))
-
-                            Icon(
-                                painter = painterResource(R.drawable.tag),
-                                contentDescription = "Tag",
-                            )
-
-                            Spacer(modifier = Modifier.width(15.dp))
-
-                            Icon(
-                                painter = painterResource(R.drawable.flag),
-                                contentDescription = "Flag",
-                            )
-                        }
-
-                        Icon(
-                            painter = painterResource(R.drawable.send),
-                            contentDescription = "Send",
-                            tint = Color(0xFF8687E7)
-                        )
-                    }
-                }
-            }
+        is Response.Error -> {
+            onError()
         }
     }
 }
+
 
 
 

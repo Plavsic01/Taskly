@@ -1,8 +1,8 @@
 package com.plavsic.taskly.di
 
 import com.google.firebase.auth.FirebaseAuth
-import com.plavsic.taskly.data.repository.AuthenticationRepositoryImpl
-import com.plavsic.taskly.domain.repository.AuthenticationRepository
+import com.plavsic.taskly.data.auth.repository.AuthenticationRepositoryImpl
+import com.plavsic.taskly.domain.auth.repository.AuthenticationRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

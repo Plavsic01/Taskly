@@ -21,33 +21,40 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.plavsic.taskly.R
-import com.plavsic.taskly.ui.homeScreen.AddTaskDialog
 import com.plavsic.taskly.ui.homeScreen.HomeScreen
+import com.plavsic.taskly.ui.shared.category.CategoryDialog
+import com.plavsic.taskly.ui.shared.task.AddTaskDialog
+import com.plavsic.taskly.ui.shared.task.DialogViewModel
 import com.plavsic.taskly.ui.theme.DarkerGray
 import com.plavsic.taskly.ui.theme.Purple
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun BottomNavigationBar() {
-
+fun BottomNavigationBar(
+    navController: NavHostController,
+    dialogViewModel: DialogViewModel
+) {
     val items = listOf(
         BottomNavigationItem.Home,
         BottomNavigationItem.Calendar,
@@ -55,32 +62,12 @@ fun BottomNavigationBar() {
         BottomNavigationItem.Profile
     )
 
-    val showAddTaskDialog = remember { mutableStateOf(false) }
+    val showTaskDialog by dialogViewModel.isTaskDialogVisible
 
-    val navController = rememberNavController()
+    val bottomNavController = rememberNavController()
 
     Scaffold(
         bottomBar = {
-//            NavigationBar {
-//                items.forEachIndexed { index,navigationItem ->
-//                    NavigationBarItem(
-//                        selected = navigationSelectedItem == index,
-//                        label = {
-//                            Text(navigationItem.label)
-//                        },
-//                        icon = {
-//                            Icon(
-//                                navigationItem.icon,
-//                                contentDescription = navigationItem.label
-//                            )
-//                        },
-//                        onClick = {
-//                            navigationSelectedItem = index
-//                            navController.navigate(navigationItem.route)
-//                        },
-//                    )
-//                }
-//            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -94,7 +81,7 @@ fun BottomNavigationBar() {
                         containerColor = Purple,
                     ),
                     onClick = {
-                        showAddTaskDialog.value = true
+                        dialogViewModel.showTaskDialog()
                     },
                     shape = CircleShape,
                     modifier = Modifier
@@ -117,8 +104,15 @@ fun BottomNavigationBar() {
             )
         }
     ) {innerPadding ->
-        AddTaskDialog(showDialog = showAddTaskDialog)
-        NavigationHost(navController = navController)
+        AddTaskDialog(
+            showDialog = showTaskDialog,
+            navController = navController,
+            dialogViewModel = dialogViewModel
+        )
+
+        NavigationHost(
+            navController = bottomNavController,
+        )
     }
 }
 
@@ -222,11 +216,10 @@ fun TasklyNavigationBarItem(
 
 
 @Composable
-fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifier) {
+fun NavigationHost(navController: NavHostController) {
     NavHost(
         navController = navController,
         startDestination = BottomNavigationItem.Home.route,
-        modifier = modifier
     ) {
         composable(BottomNavigationItem.Home.route) { HomeScreen() }
         composable(BottomNavigationItem.Calendar.route) {  }
@@ -245,8 +238,8 @@ sealed class BottomNavigationItem(val route: String,
     data object Profile : BottomNavigationItem("profile",R.drawable.user_outline,R.drawable.user_outline, "Profile")
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun BottomNavigationBarPreview() {
-    BottomNavigationBar()
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun BottomNavigationBarPreview() {
+//    BottomNavigationBar()
+//}

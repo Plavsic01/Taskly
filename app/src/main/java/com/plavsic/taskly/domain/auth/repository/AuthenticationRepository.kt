@@ -1,4 +1,4 @@
-package com.plavsic.taskly.domain.repository
+package com.plavsic.taskly.domain.auth.repository
 
 import com.google.firebase.auth.AuthResult
 import com.plavsic.taskly.core.Response
@@ -20,6 +20,5 @@ interface AuthenticationRepository {
 
 
     // Google Auth
-
     suspend fun loginWithGoogle(idToken:String) : Flow<Response<AuthResult>>
 }
