@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -19,7 +18,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,16 +29,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.plavsic.taskly.R
-import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.core.UIState
-import com.plavsic.taskly.domain.category.model.Category
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.ui.shared.calendar.CalendarDialog
 import com.plavsic.taskly.ui.shared.category.CategoryDialog
 import com.plavsic.taskly.ui.shared.common.TasklyTextField
 import com.plavsic.taskly.ui.theme.Black
 import com.plavsic.taskly.ui.theme.DarkerGray
-import java.time.LocalDate
 
 @Composable
 fun AddTaskDialog(
@@ -49,15 +44,15 @@ fun AddTaskDialog(
     dialogViewModel: DialogViewModel,
     taskViewModel: TaskViewModel = hiltViewModel()
 ) {
-    val taskTitle = rememberSaveable { mutableStateOf("") }
-    val taskDescription = rememberSaveable { mutableStateOf("") }
-
     val showCalendarDialog = remember { mutableStateOf(false) }
     val showTaskPriorityDialog = remember { mutableStateOf(false) }
 
-    var calendar: LocalDate? by remember { mutableStateOf(null) }
-    var category: Category? by remember { mutableStateOf(null) }
-    var priority: TaskPriority? by remember { mutableStateOf(null) }
+    val taskTitle = remember { mutableStateOf("") }
+    val taskDescription = remember { mutableStateOf("") }
+
+    val selectedDate by dialogViewModel.selectedDate
+    val selectedCategory by dialogViewModel.selectedCategory
+    val selectedPriority by dialogViewModel.selectedPriority
 
     var isAddBtnEnabled by remember { mutableStateOf(true) }
 
@@ -124,8 +119,8 @@ fun AddTaskDialog(
                                 }
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.timer),
-                                    contentDescription = "Timer",
+                                    painter = painterResource(R.drawable.calendar_outline),
+                                    contentDescription = "Calendar",
                                 )
                             }
 
@@ -156,17 +151,22 @@ fun AddTaskDialog(
                         IconButton(
                             enabled = isAddBtnEnabled,
                             onClick = {
-//                                TODO("ADD FUNCTIONALITY TO CREATE NEW TASK")
                                 val task = Task(
                                     title = taskTitle.value,
                                     description = taskDescription.value,
-                                    date = calendar,
-                                    priority = priority,
-                                    category = category,
+                                    date = selectedDate,
+                                    priority = selectedPriority,
+                                    category = selectedCategory,
                                     isCompleted = false
                                 )
                                 taskViewModel.addTask(task)
-                                Log.i("DodanTask",task.toString())
+
+                                // SET TO DEFAULT VALUES AFTER ADDING TASK
+                                taskTitle.value = ""
+                                taskDescription.value = ""
+                                dialogViewModel.clearSelectedDate()
+                                dialogViewModel.clearSelectedPriority()
+                                dialogViewModel.clearSelectedCategory()
                             }
                         ) {
                             Icon(
@@ -182,25 +182,17 @@ fun AddTaskDialog(
     }
     CalendarDialog(
         showDialog = showCalendarDialog,
-        onSubmit = {
-            Log.i("DATUM", it.toString())
-            calendar = it
-        }
+        dialogViewModel = dialogViewModel,
     )
 
     CategoryDialog(
         navController = navController,
-        dialogViewModel = dialogViewModel,
-        onSelectedCategory = {
-            category = it
-        }
+        dialogViewModel = dialogViewModel
     )
 
     TaskPriorityDialog(
         showDialog = showTaskPriorityDialog,
-        onSelectedPriority = {
-            priority = it
-        }
+        dialogViewModel = dialogViewModel,
     )
 
     AddTaskState(

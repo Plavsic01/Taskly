@@ -18,6 +18,8 @@ interface AuthenticationRepository {
 
     suspend fun isLoggedIn(): Boolean
 
+    suspend fun updateProfilePhoto(photoUrl:String)
+
 
     // Google Auth
     suspend fun loginWithGoogle(idToken:String) : Flow<Response<AuthResult>>

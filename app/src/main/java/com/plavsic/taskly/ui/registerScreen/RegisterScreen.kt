@@ -132,6 +132,7 @@ fun RegisterScreen(
 
     RegisterState(
         flow = registerViewModel.registerFlow,
+        viewModel = registerViewModel,
         onLoading = {
             isEnabled.value = false
         },
@@ -150,6 +151,7 @@ fun RegisterScreen(
 @Composable
 fun RegisterState(
     flow: MutableSharedFlow<Response<AuthResult>>,
+    viewModel: RegisterViewModel,
     onLoading: () -> Unit,
     onSuccess: () -> Unit,
     onError: () -> Unit
@@ -175,6 +177,7 @@ fun RegisterState(
                 is Response.Success -> {
                     Log.i("Register state -> ", "Success")
                     isLoading.value = false
+                    viewModel.createUserProfilePicture()
                     onSuccess()
                 }
             }

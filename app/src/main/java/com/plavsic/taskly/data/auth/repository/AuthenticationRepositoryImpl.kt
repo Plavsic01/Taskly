@@ -1,8 +1,10 @@
 package com.plavsic.taskly.data.auth.repository
 
+import android.net.Uri
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.domain.auth.repository.AuthenticationRepository
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +19,20 @@ class AuthenticationRepositoryImpl @Inject constructor(
     override suspend fun userUid(): String = auth.currentUser?.uid ?: ""
 
     override suspend fun isLoggedIn(): Boolean = auth.currentUser != null
+
+    override suspend fun updateProfilePhoto(photoUrl: String) {
+        val user = auth.currentUser
+
+        user?.let {
+            val profileUpdate = UserProfileChangeRequest.Builder()
+                .setPhotoUri(Uri.parse(photoUrl))
+                .build()
+
+            user.updateProfile(profileUpdate)
+                .await()
+        }
+
+    }
 
     override suspend fun logout() = auth.signOut()
 
@@ -50,6 +66,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
             emit(Response.Error(e.localizedMessage ?: "Oops, something went wrong."))
         }
     }
+
 
 
     // GOOGLE AUTH

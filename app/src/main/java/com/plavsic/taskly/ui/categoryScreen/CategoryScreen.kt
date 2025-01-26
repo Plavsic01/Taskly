@@ -1,6 +1,5 @@
 package com.plavsic.taskly.ui.categoryScreen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,10 +69,9 @@ fun CategoryScreen(
     )
 
     val categoryName = remember { mutableStateOf("") }
-    var selectedIcon by remember { mutableLongStateOf(2131099652) }
+    val selectedIcon by remember { mutableLongStateOf(2131099652) }
     var selectedColor by remember { mutableStateOf<Color?>(null) }
 
-//    Log.d("DialogViewModel", "isDialogVisible: ${dialogViewModel.isDialogVisible} iz category screen")
 
     Column(
         modifier = Modifier
@@ -143,6 +140,7 @@ fun CategoryScreen(
 
         DualActionButtons(
             onClickBtn1 = {
+                dialogViewModel.clearSelectedCategory()
                 dialogViewModel.showCategoryDialog()
                 dialogViewModel.showTaskDialog()
                 navController.popBackStack()

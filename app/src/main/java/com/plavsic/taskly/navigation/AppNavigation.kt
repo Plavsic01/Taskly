@@ -6,15 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.plavsic.taskly.ui.categoryScreen.CategoryScreen
 import com.plavsic.taskly.ui.loginScreen.LoginScreen
 import com.plavsic.taskly.ui.onboardingScreen.OnboardingScreen
 import com.plavsic.taskly.ui.registerScreen.RegisterScreen
-import com.plavsic.taskly.ui.shared.category.CategoryDialog
 import com.plavsic.taskly.ui.shared.task.DialogViewModel
 import com.plavsic.taskly.ui.startScreen.StartScreen
+import com.plavsic.taskly.ui.taskScreen.TaskScreen
 
 
 @Composable
@@ -23,8 +22,6 @@ fun AppNavigation(
     dialogViewModel: DialogViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
-
-//    Log.i("PHOTO",FirebaseAuth.getInstance().currentUser!!.photoUrl.toString())
 
 
     NavHost(
@@ -58,43 +55,10 @@ fun AppNavigation(
         composable(NavigationGraph.CategoryScreen.route){
             CategoryScreen(navController = navController,dialogViewModel = dialogViewModel)
         }
+        composable(NavigationGraph.TaskScreen.route){
+            TaskScreen()
+        }
     }
-
-
-
-//    NavHost(
-//        navController = navController,
-//        enterTransition = {
-//            EnterTransition.None
-//        },
-//        exitTransition = {
-//            ExitTransition.None
-//        },
-//        startDestination = if(navigationViewModel.isLoggedIn.value)
-//        NavigationGraph.HomeScreen.route
-//    else
-//        NavigationGraph.OnboardingScreen.route
-//    ) {
-//        composable(NavigationGraph.OnboardingScreen.route){
-//            OnboardingScreen(navController = navController)
-//        }
-//        composable(NavigationGraph.StartScreen.route){
-//            StartScreen(navController = navController)
-//        }
-//        composable(NavigationGraph.LoginScreen.route){
-//            LoginScreen(navController = navController)
-//        }
-//        composable(NavigationGraph.RegisterScreen.route) {
-//            RegisterScreen(navController = navController)
-//        }
-//        composable(NavigationGraph.HomeScreen.route) {
-//            BottomNavigationBar(navController = navController)
-//        }
-//        composable(NavigationGraph.CategoryScreen.route){
-//            CategoryScreen(navController = navController)
-//        }
-//    }
-
 }
 
 
@@ -105,6 +69,6 @@ sealed class NavigationGraph(val route:String) {
     data object RegisterScreen : NavigationGraph(route = "register_screen")
     data object BottomNavigationBar : NavigationGraph(route = "bottom_navigation_bar")
     data object CategoryScreen : NavigationGraph(route = "category_screen")
-    data object CategoryDialog : NavigationGraph(route = "category_dialog")
+    data object TaskScreen : NavigationGraph(route = "task_screen")
 }
 

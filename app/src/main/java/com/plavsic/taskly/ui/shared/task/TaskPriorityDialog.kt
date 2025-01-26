@@ -21,9 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,9 +40,10 @@ import kotlinx.parcelize.Parcelize
 @Composable
 fun TaskPriorityDialog(
     showDialog: MutableState<Boolean>,
-    onSelectedPriority:(TaskPriority) -> Unit
+    dialogViewModel: DialogViewModel,
 ){
-    var selectedPriority: TaskPriority? by rememberSaveable { mutableStateOf(null) }
+    val selectedPriority by dialogViewModel.selectedPriority
+
 
     val taskPriorities = listOf(
         TaskPriority.FirstPriority,
@@ -63,7 +61,8 @@ fun TaskPriorityDialog(
         Dialog(
             onDismissRequest = {
                 showDialog.value = false
-                selectedPriority = null
+//                selectedPriority = null
+                dialogViewModel.clearSelectedPriority()
             }
         ) {
             Card(
@@ -101,8 +100,7 @@ fun TaskPriorityDialog(
                             taskPriority = it,
                             selectedPriority = selectedPriority,
                             onClick = {
-                                selectedPriority = it
-                                onSelectedPriority(it)
+                                dialogViewModel.setSelectedPriority(it)
                             }
                         )
                     }
@@ -111,7 +109,7 @@ fun TaskPriorityDialog(
                 DualActionButtons(
                     onClickBtn1 = {
                         showDialog.value = false
-                        selectedPriority = null
+                        dialogViewModel.clearSelectedPriority()
                     },
                     onClickBtn2 = {
                         showDialog.value = false

@@ -30,6 +30,17 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
+    fun createUserProfilePicture() {
+        viewModelScope.launch {
+            try {
+                authenticationRepository.updateProfilePhoto("https://cdn-icons-png.flaticon.com/512/149/149071.png")
+            }catch (e:Exception){
+                Log.i("Error_Creating_Photo",e.message.toString())
+            }
+
+        }
+    }
+
     fun registerWithGoogle(credential: Credential) = viewModelScope.launch {
         if(credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL){
             val googleIdTokenCredential = GoogleIdTokenCredential

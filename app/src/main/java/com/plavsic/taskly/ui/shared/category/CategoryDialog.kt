@@ -20,10 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,14 +49,14 @@ import com.plavsic.taskly.utils.uLongToLong
 @Composable
 fun CategoryDialog(
     navController:NavHostController,
-    onSelectedCategory:(Category) -> Unit,
     categoryViewModel: CategoryViewModel = hiltViewModel(),
     dialogViewModel: DialogViewModel
 ){
 
     val showCategoryDialog by dialogViewModel.isCategoryDialogVisible
 
-    val selectedCategory: MutableState<Category?> = remember { mutableStateOf(null) }
+    val selectedCategory by dialogViewModel.selectedCategory
+
     val categories by categoryViewModel.categories.collectAsStateWithLifecycle()
     val addCategory = Category(-1, R.drawable.add_category.toLong(), "Create New", uLongToLong(CategoryTurquoise.value))
     val categoriesWithAddButton = categories + addCategory
@@ -67,6 +64,7 @@ fun CategoryDialog(
     if(showCategoryDialog){
         Dialog(onDismissRequest = {
             dialogViewModel.hideCategoryDialog()
+            dialogViewModel.clearSelectedCategory()
         }){
             Card(
                 modifier = Modifier
@@ -101,10 +99,11 @@ fun CategoryDialog(
                     items(categoriesWithAddButton){
                         CategoryItem(
                             category = it,
-                            isSelected = it == selectedCategory.value,
+                            isSelected = it == selectedCategory,
                             onClick = {
-                                selectedCategory.value = it
-                                if(it.name == "Create New"){
+                                if(it.name != "Create New") {
+                                    dialogViewModel.setSelectedCategory(it)
+                                }else{
                                     dialogViewModel.hideCategoryDialog()
                                     dialogViewModel.hideTaskDialog()
                                     navController.navigate(NavigationGraph.CategoryScreen.route)
@@ -115,15 +114,13 @@ fun CategoryDialog(
                 }
 
                 TasklyButton(
-                    enabled = selectedCategory.value != null,
+                    enabled = selectedCategory != null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                     ,
                     onClick = {
                         dialogViewModel.hideCategoryDialog()
-                        onSelectedCategory(selectedCategory.value!!)
-
                     },
                     text = "Add Category",
                     containerColor = Purple,

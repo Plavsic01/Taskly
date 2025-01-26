@@ -21,9 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -34,17 +32,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.plavsic.taskly.R
 import com.plavsic.taskly.ui.homeScreen.HomeScreen
-import com.plavsic.taskly.ui.shared.category.CategoryDialog
+import com.plavsic.taskly.ui.profileScreen.ProfileScreen
 import com.plavsic.taskly.ui.shared.task.AddTaskDialog
 import com.plavsic.taskly.ui.shared.task.DialogViewModel
+import com.plavsic.taskly.ui.taskScreen.TaskScreen
 import com.plavsic.taskly.ui.theme.DarkerGray
 import com.plavsic.taskly.ui.theme.Purple
 
@@ -111,7 +108,8 @@ fun BottomNavigationBar(
         )
 
         NavigationHost(
-            navController = bottomNavController,
+            navController = navController,
+            bottomNavController = bottomNavController,
         )
     }
 }
@@ -216,15 +214,18 @@ fun TasklyNavigationBarItem(
 
 
 @Composable
-fun NavigationHost(navController: NavHostController) {
+fun NavigationHost(
+    navController: NavHostController,
+    bottomNavController:NavHostController
+) {
     NavHost(
-        navController = navController,
+        navController = bottomNavController,
         startDestination = BottomNavigationItem.Home.route,
     ) {
-        composable(BottomNavigationItem.Home.route) { HomeScreen() }
+        composable(BottomNavigationItem.Home.route) { HomeScreen(navController = navController) }
         composable(BottomNavigationItem.Calendar.route) {  }
         composable(BottomNavigationItem.Focus.route) {  }
-        composable(BottomNavigationItem.Profile.route) {  }
+        composable(BottomNavigationItem.Profile.route) { ProfileScreen() }
     }
 }
 
@@ -237,9 +238,3 @@ sealed class BottomNavigationItem(val route: String,
     data object Focus : BottomNavigationItem("focus",R.drawable.clock_outline,R.drawable.clock,"Focus")
     data object Profile : BottomNavigationItem("profile",R.drawable.user_outline,R.drawable.user_outline, "Profile")
 }
-
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun BottomNavigationBarPreview() {
-//    BottomNavigationBar()
-//}

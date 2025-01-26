@@ -47,7 +47,10 @@ class TaskRepositoryImpl @Inject constructor(
 
                     }
 
-                awaitClose { listenerRegistration.remove() }
+                awaitClose {
+                    listenerRegistration.remove()
+                    channel.close()
+                }
 
             } catch (e: Exception) {
                 trySend(Response.Error(e.message ?: "Unknown error"))
