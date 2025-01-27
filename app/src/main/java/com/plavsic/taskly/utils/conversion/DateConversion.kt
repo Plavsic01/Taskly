@@ -1,4 +1,4 @@
-package com.plavsic.taskly.utils
+package com.plavsic.taskly.utils.conversion
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

@@ -4,9 +4,14 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.toRoute
+import com.google.gson.Gson
+import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.ui.categoryScreen.CategoryScreen
 import com.plavsic.taskly.ui.loginScreen.LoginScreen
 import com.plavsic.taskly.ui.onboardingScreen.OnboardingScreen
@@ -14,6 +19,7 @@ import com.plavsic.taskly.ui.registerScreen.RegisterScreen
 import com.plavsic.taskly.ui.shared.task.DialogViewModel
 import com.plavsic.taskly.ui.startScreen.StartScreen
 import com.plavsic.taskly.ui.taskScreen.TaskScreen
+import com.plavsic.taskly.utils.gson.GsonInstance
 
 
 @Composable
@@ -55,8 +61,13 @@ fun AppNavigation(
         composable(NavigationGraph.CategoryScreen.route){
             CategoryScreen(navController = navController,dialogViewModel = dialogViewModel)
         }
-        composable(NavigationGraph.TaskScreen.route){
-            TaskScreen()
+        composable(
+            route = "${NavigationGraph.TaskScreen.route}/{task}",
+            arguments = listOf(navArgument("task") { type = NavType.StringType })
+        ){
+            val taskJson = it.arguments?.getString("task")
+            val task = GsonInstance.gson.fromJson(taskJson,Task::class.java)
+            TaskScreen(task = task)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.plavsic.taskly.utils
+package com.plavsic.taskly.utils.conversion
 
 import com.plavsic.taskly.domain.category.model.Category
 import com.plavsic.taskly.ui.shared.task.TaskPriority
@@ -24,7 +24,7 @@ fun Map<*,*>.toPriority() : TaskPriority {
 
 fun Map<*,*>.toCategory() : Category {
     val id = this["id"] as Long
-    val image = this["image"] as Long
+    val image = this["image"] as String
     val name  = this["name"] as String
     val color = this["color"] as Long
 

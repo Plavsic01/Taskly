@@ -4,10 +4,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.domain.task.repository.TaskRepository
-import com.plavsic.taskly.utils.toCategory
-import com.plavsic.taskly.utils.toFirebaseString
-import com.plavsic.taskly.utils.toLocalDate
-import com.plavsic.taskly.utils.toPriority
+import com.plavsic.taskly.utils.conversion.toCategory
+import com.plavsic.taskly.utils.conversion.toFirebaseString
+import com.plavsic.taskly.utils.conversion.toLocalDate
+import com.plavsic.taskly.utils.conversion.toPriority
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

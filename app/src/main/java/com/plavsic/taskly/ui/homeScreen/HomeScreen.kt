@@ -2,6 +2,7 @@ package com.plavsic.taskly.ui.homeScreen
 
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -34,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,6 +48,7 @@ import com.plavsic.taskly.navigation.NavigationGraph
 import com.plavsic.taskly.ui.shared.common.TasklyTextField
 import com.plavsic.taskly.ui.shared.task.TaskView
 import com.plavsic.taskly.ui.shared.task.TaskViewModel
+import com.plavsic.taskly.utils.gson.GsonInstance
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -107,8 +108,6 @@ fun HomeScreen(
                     }
                 }
             }
-
-
         }
     ) {
         Column(
@@ -130,11 +129,12 @@ fun HomeScreen(
                         showSearch = true
                         TasksLazyColumn(
                             tasks = it,
-                            onClick = {
-                                navController.navigate(NavigationGraph.TaskScreen.route)
+                            onClick = {task ->
+                                val encodedTask = Uri.encode(GsonInstance.gson.toJson(task))
+                                navController.navigate("${NavigationGraph.TaskScreen.route}/$encodedTask")
                             }
                         )
-                    }else{
+                    }else {
                         showSearch = false
                         NoDataView()
                     }
@@ -169,7 +169,7 @@ private fun NoDataView() {
 @Composable
 private fun TasksLazyColumn(
     tasks: List<Task>,
-    onClick:() -> Unit
+    onClick:(Task) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.height(310.dp),
@@ -179,7 +179,7 @@ private fun TasksLazyColumn(
         items(tasks) { task ->
             TaskView(
                 modifier = Modifier.clickable {
-                    onClick()
+                    onClick(task)
                 },
                 task = task
             )

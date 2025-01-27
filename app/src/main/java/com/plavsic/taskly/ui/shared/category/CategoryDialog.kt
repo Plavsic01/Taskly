@@ -32,8 +32,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.plavsic.taskly.R
 import com.plavsic.taskly.domain.category.model.Category
+import com.plavsic.taskly.domain.category.model.CategoryIcon
 import com.plavsic.taskly.navigation.NavigationGraph
 import com.plavsic.taskly.ui.categoryScreen.CategoryViewModel
 import com.plavsic.taskly.ui.shared.common.Divider
@@ -43,8 +43,8 @@ import com.plavsic.taskly.ui.theme.CategoryTurquoise
 import com.plavsic.taskly.ui.theme.DarkerGray
 import com.plavsic.taskly.ui.theme.Purple
 import com.plavsic.taskly.ui.theme.WhiteWithOpacity87
-import com.plavsic.taskly.utils.longToULong
-import com.plavsic.taskly.utils.uLongToLong
+import com.plavsic.taskly.utils.conversion.longToULong
+import com.plavsic.taskly.utils.conversion.uLongToLong
 
 @Composable
 fun CategoryDialog(
@@ -58,8 +58,9 @@ fun CategoryDialog(
     val selectedCategory by dialogViewModel.selectedCategory
 
     val categories by categoryViewModel.categories.collectAsStateWithLifecycle()
-    val addCategory = Category(-1, R.drawable.add_category.toLong(), "Create New", uLongToLong(CategoryTurquoise.value))
+    val addCategory = Category(-1, "ADD", "Create New", uLongToLong(CategoryTurquoise.value))
     val categoriesWithAddButton = categories + addCategory
+
 
     if(showCategoryDialog){
         Dialog(onDismissRequest = {
@@ -165,7 +166,7 @@ fun CategoryItem(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(category.image.toInt()),
+                painter = painterResource(CategoryIcon.fromName(category.image)!!.resId),
                 contentDescription = category.name,
             )
         }

@@ -1,4 +1,4 @@
-package com.plavsic.taskly.utils
+package com.plavsic.taskly.utils.conversion
 
 
 // Used for converting from ULong to Long and vice versa because Room db only accepts Long

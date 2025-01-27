@@ -45,7 +45,7 @@ import com.plavsic.taskly.ui.theme.CategoryTurquoise
 import com.plavsic.taskly.ui.theme.CategoryYellow
 import com.plavsic.taskly.ui.theme.WhiteWithOpacity21
 import com.plavsic.taskly.ui.theme.WhiteWithOpacity87
-import com.plavsic.taskly.utils.uLongToLong
+import com.plavsic.taskly.utils.conversion.uLongToLong
 
 
 @Composable
@@ -69,7 +69,7 @@ fun CategoryScreen(
     )
 
     val categoryName = remember { mutableStateOf("") }
-    val selectedIcon by remember { mutableLongStateOf(2131099652) }
+    val selectedIcon by remember { mutableStateOf("") } //
     var selectedColor by remember { mutableStateOf<Color?>(null) }
 
 

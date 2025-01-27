@@ -22,10 +22,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.plavsic.taskly.domain.category.model.CategoryIcon
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.ui.theme.DarkerGray
 import com.plavsic.taskly.ui.theme.Purple
-import com.plavsic.taskly.utils.longToULong
+import com.plavsic.taskly.utils.conversion.longToULong
 
 @Composable
 fun TaskView(
@@ -64,7 +65,7 @@ fun TaskView(
                     modifier = Modifier
                         .background(Color(value = longToULong(task.category!!.color)),
                             shape = RoundedCornerShape(4.dp)),
-                    image = task.category.image.toInt(),
+                    image = CategoryIcon.fromName(task.category.image)!!.resId,
                     text = task.category.name
                 )
 

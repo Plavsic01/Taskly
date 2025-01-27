@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.plavsic.taskly.data.database.dao.CategoryDAO
 import com.plavsic.taskly.data.database.entities.CategoryEntity
 
-@Database(entities = [CategoryEntity::class], version = 1)
+@Database(entities = [CategoryEntity::class], version = 2)
 abstract class CategoryDatabase:RoomDatabase() {
     abstract fun CategoryDAO() : CategoryDAO
 }
