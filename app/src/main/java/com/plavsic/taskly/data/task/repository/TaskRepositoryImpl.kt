@@ -1,5 +1,7 @@
-package com.plavsic.taskly.data.task
+package com.plavsic.taskly.data.task.repository
 
+import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.domain.task.model.Task
@@ -15,13 +17,20 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(
+    private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ) : TaskRepository {
 
     override fun getTasks(): Flow<Response<List<Task>>> {
         return callbackFlow {
             try {
-                val listenerRegistration = firestore.collection("users")
+
+                val tasksCollection = firestore
+                    .collection("users")
+                    .document(auth.currentUser!!.uid)
+                    .collection("tasks")
+
+                val listenerRegistration = tasksCollection
                     .addSnapshotListener { snapshot, exception ->
                         if (exception != null) {
                             trySend(Response.Error(exception.message ?: "Unknown error"))
@@ -38,9 +47,9 @@ class TaskRepositoryImpl @Inject constructor(
                             Task(
                                 title,
                                 description,
-                                date,priority?.toPriority()
-                                ,category?.toCategory()
-                                ,isCompleted
+                                date,priority?.toPriority(),
+                                category?.toCategory(),
+                                isCompleted
                             )
                         }
                             trySend(Response.Success(tasks ?: emptyList()))
@@ -59,17 +68,33 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addTask(task:Task) {
+        val userId = auth.currentUser?.uid
 
-        val taskMap = hashMapOf(
-            "title" to task.title,
-            "description" to task.description,
-            "date" to task.date?.toFirebaseString(),
-            "priority" to task.priority,
-            "category" to task.category,
-            "isCompleted" to task.isCompleted
-        )
+        if(userId != null){
+            val taskMap = hashMapOf(
+                "title" to task.title,
+                "description" to task.description,
+                "date" to task.date?.toFirebaseString(),
+                "priority" to task.priority,
+                "category" to task.category,
+                "isCompleted" to task.isCompleted,
+            )
 
-        firestore.collection("users").add(taskMap).await()
+            try {
+                firestore.collection("users")
+                    .document(userId)
+                    .collection("tasks")
+                    .add(taskMap)
+                    .await()
+
+                Log.i("Firestore","Document created successfully")
+            }catch (e:Exception) {
+                Log.e("Firestore", "Error while creating document: ${e.message}")
+            }
+
+        }else {
+            Log.e("Firestore", "User not logged in.")
+        }
     }
 }
 

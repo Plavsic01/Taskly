@@ -5,7 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,17 +31,34 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.plavsic.taskly.R
 import com.plavsic.taskly.domain.category.model.CategoryIcon
 import com.plavsic.taskly.domain.task.model.Task
+import com.plavsic.taskly.ui.shared.calendar.CalendarDialog
+import com.plavsic.taskly.ui.shared.category.CategoryDialog
+import com.plavsic.taskly.ui.shared.common.Divider
+import com.plavsic.taskly.ui.shared.common.DualActionButtons
 import com.plavsic.taskly.ui.shared.common.TasklyButton
+import com.plavsic.taskly.ui.shared.common.TasklyTextField
+import com.plavsic.taskly.ui.shared.task.DialogViewModel
+import com.plavsic.taskly.ui.shared.task.TaskPriorityDialog
 import com.plavsic.taskly.ui.theme.Background
+import com.plavsic.taskly.ui.theme.DarkerGray
 import com.plavsic.taskly.ui.theme.LightBlack
 import com.plavsic.taskly.ui.theme.LightWhite
 import com.plavsic.taskly.ui.theme.Purple
@@ -48,8 +69,23 @@ import com.plavsic.taskly.ui.theme.WhiteWithOpacity21
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
-    task: Task
+    task: Task,
+    navController:NavHostController,
+    dialogViewModel: DialogViewModel = hiltViewModel()
 ) {
+    // Need this for changing Task Category Icon maybe implement this
+    val editTask = remember { mutableStateOf(task) }
+
+    val showEditDialog = remember { mutableStateOf(false) }
+    val showDeleteDialog = remember { mutableStateOf(false) }
+    val showPriorityDialog = remember { mutableStateOf(false) }
+    val showCalendarDialog = remember { mutableStateOf(false) }
+
+    val selectedDate by dialogViewModel.selectedDate
+    val selectedCategory by dialogViewModel.selectedCategory
+    val selectedPriority by dialogViewModel.selectedPriority
+
+    Log.i("EDITTASK",editTask.toString())
 
     Scaffold(
         modifier = Modifier
@@ -67,7 +103,10 @@ fun TaskScreen(
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = LightBlack
                         ),
-                        onClick = {}) {
+                        onClick = {
+                            // Close Task Screen
+                            navController.popBackStack()
+                        }) {
                         Icon(
                             imageVector = Icons.Default.Close, contentDescription = "Close"
                             )
@@ -82,19 +121,60 @@ fun TaskScreen(
                 .padding(paddingValues),
         ) {
             TitleView(
-                task = task
+                task = editTask.value,
+                showEditDialog = showEditDialog
             )
-            // Content after Title
-            // MAIN ROW
+
             Spacer(modifier = Modifier.height(20.dp))
 
             // CONTENT
             Content(
-                task = task,
+                task = editTask.value,
+                onClickCalendar = {
+                    showCalendarDialog.value = true
+                },
+                onClickCategory = {
+                    dialogViewModel.showCategoryDialog()
+                },
+                onClickPriority = {
+                    showPriorityDialog.value = true
+                },
                 onDeleteTask = {
-                    Log.i("TaskPrebacen",task.toString())
+                    showDeleteDialog.value = true
                 }
             )
+
+            EditTaskDialog(
+                showDialog = showEditDialog,
+                task = editTask
+            )
+
+            CalendarDialog(
+                showDialog = showCalendarDialog,
+                dialogViewModel = dialogViewModel
+            )
+
+            CategoryDialog(
+                navController = navController,
+                isForEdit = true,
+                dialogViewModel = dialogViewModel
+            )
+
+            TaskPriorityDialog(
+                showDialog = showPriorityDialog,
+                isForEdit = true,
+                dialogViewModel = dialogViewModel,
+                onEdit = {
+                    editTask.value = editTask.value.copy(
+                        priority = selectedPriority
+                    )
+                }
+            )
+
+            DeleteTaskDialog(
+                showDialog = showDeleteDialog
+            )
+
         }
     }
 }
@@ -103,6 +183,9 @@ fun TaskScreen(
 private fun Content(
     // Maybe add parameter task for onDeleteTask
     task:Task,
+    onClickCalendar:() -> Unit,
+    onClickCategory:() -> Unit,
+    onClickPriority:() -> Unit,
     onDeleteTask:() -> Unit
 ) {
     Column(
@@ -117,6 +200,9 @@ private fun Content(
                 contentDescription = "Calendar",
                 text = " Task Time:",
                 btnText = task.date.toString(),
+                onClick = {
+                    onClickCalendar()
+                },
                 content = {}
             )
 
@@ -128,7 +214,10 @@ private fun Content(
                 icon = R.drawable.tag,
                 contentDescription = "Task Category",
                 text = " Task Category:",
-                btnText = task.category?.name.toString()
+                btnText = task.category?.name.toString(),
+                onClick = {
+                    onClickCategory()
+                }
             ) {
                 Image(
                     modifier = Modifier
@@ -148,6 +237,9 @@ private fun Content(
                 contentDescription = "Task Priority",
                 text = " Task Priority:",
                 btnText = task.priority?.number.toString(),
+                onClick = {
+                    onClickPriority()
+                },
                 content = {
                     Image(
                         modifier = Modifier
@@ -202,8 +294,10 @@ private fun Content(
 
 @Composable
 private fun TitleView(
-    task: Task
+    task: Task,
+    showEditDialog:MutableState<Boolean>
 ) {
+
     Column {
         Row(
             modifier = Modifier
@@ -217,7 +311,9 @@ private fun TitleView(
             )
 
             IconButton(
-                onClick = {}
+                onClick = {
+                    showEditDialog.value = true
+                }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.edit_task),
@@ -240,7 +336,8 @@ private fun ItemRow(
     contentDescription:String,
     text:String,
     btnText:String,
-    content:@Composable () -> Unit
+    onClick:() -> Unit,
+    content:@Composable RowScope.() -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -249,7 +346,6 @@ private fun ItemRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        // ROW FOR LEFT SIDE EXAMPLE: ICON AND TASK TIME: etc
         Row {
             Icon(
                 painter = painterResource(icon),
@@ -266,15 +362,156 @@ private fun ItemRow(
                 containerColor = WhiteWithOpacity21
             ),
             onClick = {
-
+                onClick()
             }
         ) {
             content()
             Text(
-//                Sun 26 Jan
                 text = btnText,
                 fontSize = 12.sp
             )
+        }
+    }
+}
+
+@Composable
+fun EditTaskDialog(
+    showDialog: MutableState<Boolean>,
+    task: MutableState<Task>,
+) {
+    val taskTitle = rememberSaveable { mutableStateOf(task.value.title) }
+    val taskDescription = rememberSaveable { mutableStateOf(task.value.description) }
+
+
+    TaskDialog(
+        showDialog = showDialog,
+        title = "Edit Task",
+        content = {
+            TasklyTextField(
+                state = taskTitle,
+                placeholder = "Task",
+                unfocusedContainerColor = DarkerGray,
+                showBorder = false,
+                onValueChange = {
+                    taskTitle.value = it
+                }
+            )
+            TasklyTextField(
+                state = taskDescription,
+                placeholder = "Description",
+                unfocusedContainerColor = DarkerGray,
+                showBorder = false,
+                onValueChange = {
+                    taskDescription.value = it
+                }
+            )
+            DualActionButtons(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 10.dp),
+                btn1Text = "Cancel",
+                btn2Text = "Edit",
+                onClickBtn1 = {
+                    // Cancel
+                    showDialog.value = false
+                },
+                onClickBtn2 = {
+                    task.value = task.value.copy(
+                        title = taskTitle.value,
+                        description = taskDescription.value
+                    )
+                }
+            )
+        }
+    )
+}
+
+@Composable
+fun DeleteTaskDialog(
+    showDialog: MutableState<Boolean>,
+) {
+    TaskDialog(
+      showDialog = showDialog,
+      title = "Delete Task",
+      content = {
+
+          Spacer(
+              modifier = Modifier
+                  .height(20.dp)
+          )
+          Column(
+              modifier = Modifier
+                  .fillMaxSize(),
+              verticalArrangement = Arrangement.SpaceBetween
+          ) {
+              Text(
+                  text = "Are you sure you want to delete this task?",
+                  fontSize = 14.sp
+              )
+
+              Text(
+                  text = "Task title: Do math homework",
+                  fontSize = 14.sp
+              )
+
+              DualActionButtons(
+                  modifier = Modifier
+                      .weight(1f)
+                      .padding(horizontal = 10.dp),
+                  btn1Text = "Cancel",
+                  btn2Text = "Delete",
+                  onClickBtn1 = {
+                      // Cancel
+                      showDialog.value = false
+                  },
+                  onClickBtn2 = {
+                      // Delete
+                  }
+              )
+          }
+      }
+    )
+}
+
+
+@Composable
+fun TaskDialog(
+    showDialog:MutableState<Boolean>,
+    title:String,
+    content:@Composable ColumnScope.() -> Unit
+) {
+    if (showDialog.value) {
+        Dialog(
+            onDismissRequest = {
+                showDialog.value = false
+            }
+        ) {
+            Card(
+                modifier = Modifier
+                    .height(250.dp)
+                    .fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = DarkerGray
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(all = 20.dp)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        text = title,
+                        fontSize = 15.sp,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Divider()
+
+                    content()
+                }
+            }
         }
     }
 }

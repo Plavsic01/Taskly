@@ -49,6 +49,7 @@ import com.plavsic.taskly.utils.conversion.uLongToLong
 @Composable
 fun CategoryDialog(
     navController:NavHostController,
+    isForEdit:Boolean = false,
     categoryViewModel: CategoryViewModel = hiltViewModel(),
     dialogViewModel: DialogViewModel
 ){
@@ -123,7 +124,7 @@ fun CategoryDialog(
                     onClick = {
                         dialogViewModel.hideCategoryDialog()
                     },
-                    text = "Add Category",
+                    text = if(!isForEdit) "Add Category" else "Edit Category",
                     containerColor = Purple,
                     contentColor = Color.White
                 )

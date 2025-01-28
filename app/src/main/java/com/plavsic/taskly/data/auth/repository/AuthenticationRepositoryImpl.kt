@@ -16,9 +16,13 @@ class AuthenticationRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth
 ) : AuthenticationRepository {
 
-    override suspend fun userUid(): String = auth.currentUser?.uid ?: ""
+    override fun userUid(): String = auth.currentUser?.uid ?: ""
 
-    override suspend fun isLoggedIn(): Boolean = auth.currentUser != null
+    override fun isLoggedIn(): Boolean = auth.currentUser != null
+
+    override fun getCurrentUserProfilePicture() :String {
+        return auth.currentUser?.photoUrl.toString()
+    }
 
     override suspend fun updateProfilePhoto(photoUrl: String) {
         val user = auth.currentUser
@@ -34,7 +38,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun logout() = auth.signOut()
+    override fun logout() = auth.signOut()
 
     override suspend fun login(email: String, password: String): Flow<Response<AuthResult>> = flow {
         try {

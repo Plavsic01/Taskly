@@ -1,6 +1,7 @@
 package com.plavsic.taskly.domain.task.model
 
 import android.os.Parcelable
+import com.google.firebase.auth.FirebaseAuth
 import com.plavsic.taskly.domain.category.model.Category
 import com.plavsic.taskly.ui.shared.task.TaskPriority
 import kotlinx.parcelize.Parcelize
@@ -14,5 +15,5 @@ data class Task(
     val date: LocalDate? = null,
     val priority: TaskPriority? = null,
     val category: Category? = null,
-    val isCompleted:Boolean = false
+    val isCompleted:Boolean = false,
 ) : Parcelable

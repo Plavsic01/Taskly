@@ -67,7 +67,7 @@ fun AppNavigation(
         ){
             val taskJson = it.arguments?.getString("task")
             val task = GsonInstance.gson.fromJson(taskJson,Task::class.java)
-            TaskScreen(task = task)
+            TaskScreen(task = task, navController = navController)
         }
     }
 }

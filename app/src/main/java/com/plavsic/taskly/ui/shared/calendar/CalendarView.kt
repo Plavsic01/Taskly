@@ -263,11 +263,5 @@ sealed class DaysInWeek(val name:String,val color:Color){
 }
 
 
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun CalendarViewPreview(){
-//    CalendarView(modifier = Modifier){}
-//}
-
 
 

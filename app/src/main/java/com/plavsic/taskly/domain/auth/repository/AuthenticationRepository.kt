@@ -12,14 +12,15 @@ interface AuthenticationRepository {
 
     suspend fun resetPassword(email: String): Flow<Response<Void?>>
 
-    suspend fun logout()
+    fun logout()
 
-    suspend fun userUid(): String
+    fun userUid(): String
 
-    suspend fun isLoggedIn(): Boolean
+    fun isLoggedIn(): Boolean
 
     suspend fun updateProfilePhoto(photoUrl:String)
 
+    fun getCurrentUserProfilePicture() : String
 
     // Google Auth
     suspend fun loginWithGoogle(idToken:String) : Flow<Response<AuthResult>>

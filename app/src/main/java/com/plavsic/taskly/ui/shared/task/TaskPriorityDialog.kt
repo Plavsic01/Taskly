@@ -40,6 +40,8 @@ import kotlinx.parcelize.Parcelize
 @Composable
 fun TaskPriorityDialog(
     showDialog: MutableState<Boolean>,
+    isForEdit:Boolean = false,
+    onEdit:() -> Unit = {},
     dialogViewModel: DialogViewModel,
 ){
     val selectedPriority by dialogViewModel.selectedPriority
@@ -61,7 +63,6 @@ fun TaskPriorityDialog(
         Dialog(
             onDismissRequest = {
                 showDialog.value = false
-//                selectedPriority = null
                 dialogViewModel.clearSelectedPriority()
             }
         ) {
@@ -107,16 +108,18 @@ fun TaskPriorityDialog(
                 }
 
                 DualActionButtons(
+                    modifier = Modifier,
                     onClickBtn1 = {
                         showDialog.value = false
                         dialogViewModel.clearSelectedPriority()
                     },
                     onClickBtn2 = {
                         showDialog.value = false
+                        onEdit()
                     },
                     enabled = selectedPriority != null,
                     btn1Text = "Cancel",
-                    btn2Text = "Save"
+                    btn2Text = if(!isForEdit) "Save" else "Edit"
                 )
             }
         }

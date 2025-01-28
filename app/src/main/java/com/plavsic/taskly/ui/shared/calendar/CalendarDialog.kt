@@ -51,6 +51,7 @@ fun CalendarDialog(
                 }
 
                 DualActionButtons(
+                    modifier = Modifier,
                     onClickBtn1 = {
                         showDialog.value = false
                         dialogViewModel.clearSelectedDate()
@@ -65,5 +66,4 @@ fun CalendarDialog(
             }
         }
     }
-
 }

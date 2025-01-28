@@ -45,6 +45,7 @@ import com.plavsic.taskly.R
 import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.navigation.NavigationGraph
+import com.plavsic.taskly.ui.profileScreen.ProfileViewModel
 import com.plavsic.taskly.ui.shared.common.TasklyTextField
 import com.plavsic.taskly.ui.shared.task.TaskView
 import com.plavsic.taskly.ui.shared.task.TaskViewModel
@@ -56,7 +57,7 @@ import com.plavsic.taskly.utils.gson.GsonInstance
 fun HomeScreen(
     navController: NavHostController,
     taskViewModel: TaskViewModel = hiltViewModel(),
-    homeViewModel: HomeViewModel = hiltViewModel()
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val tasksState = taskViewModel.tasksState.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }
@@ -87,7 +88,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(shape = CircleShape),
-                        model = homeViewModel.getCurrentUserProfilePicture(),
+                        model = profileViewModel.getUserProfilePicture(),
                         contentDescription = "Avatar"
                     )
                 }
@@ -127,6 +128,9 @@ fun HomeScreen(
                 onSuccess = {
                     if(it.isNotEmpty()){
                         showSearch = true
+
+                        Log.i("TASK_LOADED",it.toString())
+
                         TasksLazyColumn(
                             tasks = it,
                             onClick = {task ->
@@ -139,7 +143,9 @@ fun HomeScreen(
                         NoDataView()
                     }
                 },
-                onError = {}
+                onError = {
+                    Log.i("TASK_LOADED",it)
+                }
             )
         }
     }
@@ -193,7 +199,7 @@ fun GetTasksState(
     state:State<Response<List<Task>>>,
     onLoading: @Composable () -> Unit,
     onSuccess: @Composable (List<Task>) -> Unit,
-    onError:@Composable () -> Unit
+    onError:@Composable (String) -> Unit
 ){
     when(state.value){
         is Response.Loading -> {
@@ -208,7 +214,8 @@ fun GetTasksState(
         }
 
         is Response.Error -> {
-            onError()
+            val error = state.value as Response.Error
+            onError(error.message)
         }
     }
 }

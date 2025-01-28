@@ -12,6 +12,7 @@ import com.plavsic.taskly.ui.theme.Purple
 
 @Composable
 fun DualActionButtons(
+    modifier: Modifier,
     onClickBtn1:() -> Unit,
     onClickBtn2:() -> Unit,
     enabled:Boolean = true,
@@ -25,6 +26,7 @@ fun DualActionButtons(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         TasklyButton(
+            modifier = modifier,
             onClick = {
                 onClickBtn1()
             },
@@ -33,6 +35,7 @@ fun DualActionButtons(
             contentColor = Purple
         )
         TasklyButton(
+            modifier = modifier,
             onClick = {
                 onClickBtn2()
             },

@@ -18,6 +18,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,13 +43,13 @@ fun AddTaskDialog(
     showDialog: Boolean,
     navController:NavHostController,
     dialogViewModel: DialogViewModel,
-    taskViewModel: TaskViewModel = hiltViewModel()
+    taskViewModel: TaskViewModel = hiltViewModel(),
 ) {
     val showCalendarDialog = remember { mutableStateOf(false) }
     val showTaskPriorityDialog = remember { mutableStateOf(false) }
 
-    val taskTitle = remember { mutableStateOf("") }
-    val taskDescription = remember { mutableStateOf("") }
+    val taskTitle = rememberSaveable { mutableStateOf("") }
+    val taskDescription = rememberSaveable { mutableStateOf("") }
 
     val selectedDate by dialogViewModel.selectedDate
     val selectedCategory by dialogViewModel.selectedCategory
@@ -157,8 +158,9 @@ fun AddTaskDialog(
                                     date = selectedDate,
                                     priority = selectedPriority,
                                     category = selectedCategory,
-                                    isCompleted = false
+                                    isCompleted = false,
                                 )
+
                                 taskViewModel.addTask(task)
 
                                 // SET TO DEFAULT VALUES AFTER ADDING TASK
@@ -230,7 +232,6 @@ fun AddTaskState(
         is UIState.Error -> {
             onError()
         }
-
     }
 }
 

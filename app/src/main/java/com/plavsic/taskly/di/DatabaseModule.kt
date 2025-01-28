@@ -27,6 +27,8 @@ object DatabaseModule {
             CategoryDatabase::class.java,
             "categories-db"
         )
+            // DO MIGRATION
+            .fallbackToDestructiveMigration()
             .createFromAsset("database/categories.db")
             .build()
     }

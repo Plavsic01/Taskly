@@ -139,6 +139,7 @@ fun CategoryScreen(
         }
 
         DualActionButtons(
+            modifier = Modifier,
             onClickBtn1 = {
                 dialogViewModel.clearSelectedCategory()
                 dialogViewModel.showCategoryDialog()
