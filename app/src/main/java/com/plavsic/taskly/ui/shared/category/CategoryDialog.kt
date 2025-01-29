@@ -50,6 +50,7 @@ import com.plavsic.taskly.utils.conversion.uLongToLong
 fun CategoryDialog(
     navController:NavHostController,
     isForEdit:Boolean = false,
+    onEdit:() -> Unit = {},
     categoryViewModel: CategoryViewModel = hiltViewModel(),
     dialogViewModel: DialogViewModel
 ){
@@ -66,7 +67,9 @@ fun CategoryDialog(
     if(showCategoryDialog){
         Dialog(onDismissRequest = {
             dialogViewModel.hideCategoryDialog()
-            dialogViewModel.clearSelectedCategory()
+            if(!isForEdit){
+                dialogViewModel.clearSelectedCategory()
+            }
         }){
             Card(
                 modifier = Modifier
@@ -123,6 +126,7 @@ fun CategoryDialog(
                     ,
                     onClick = {
                         dialogViewModel.hideCategoryDialog()
+                        onEdit()
                     },
                     text = if(!isForEdit) "Add Category" else "Edit Category",
                     containerColor = Purple,

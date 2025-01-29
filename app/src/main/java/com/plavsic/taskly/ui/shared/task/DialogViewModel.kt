@@ -29,11 +29,6 @@ class DialogViewModel @Inject constructor() : ViewModel() {
     val selectedPriority: State<TaskPriority?> get() = _selectedPriority
 
 
-
-    init {
-        Log.d("DialogViewModel", "Instance created!")
-    }
-
     fun showCategoryDialog() {
         _isCategoryDialogVisible.value = true
     }
@@ -73,4 +68,5 @@ class DialogViewModel @Inject constructor() : ViewModel() {
     fun clearSelectedPriority() {
         _selectedPriority.value = null
     }
+
 }

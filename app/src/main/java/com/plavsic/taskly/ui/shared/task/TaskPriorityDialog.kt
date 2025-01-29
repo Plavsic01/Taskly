@@ -63,7 +63,9 @@ fun TaskPriorityDialog(
         Dialog(
             onDismissRequest = {
                 showDialog.value = false
-                dialogViewModel.clearSelectedPriority()
+                if(!isForEdit){
+                    dialogViewModel.clearSelectedPriority()
+                }
             }
         ) {
             Card(
@@ -111,7 +113,9 @@ fun TaskPriorityDialog(
                     modifier = Modifier,
                     onClickBtn1 = {
                         showDialog.value = false
-                        dialogViewModel.clearSelectedPriority()
+                        if(!isForEdit){
+                            dialogViewModel.clearSelectedPriority()
+                        }
                     },
                     onClickBtn2 = {
                         showDialog.value = false

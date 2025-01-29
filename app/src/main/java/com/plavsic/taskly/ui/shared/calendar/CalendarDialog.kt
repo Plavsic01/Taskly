@@ -19,6 +19,8 @@ import com.plavsic.taskly.ui.theme.DarkerGray
 @Composable
 fun CalendarDialog(
     showDialog: MutableState<Boolean>,
+    isForEdit:Boolean = false,
+    onEdit:() -> Unit = {},
     dialogViewModel: DialogViewModel,
 ) {
 
@@ -29,7 +31,9 @@ fun CalendarDialog(
         Dialog(
             onDismissRequest = {
                 showDialog.value = false
-                dialogViewModel.clearSelectedDate()
+                if(!isForEdit){
+                    dialogViewModel.clearSelectedDate()
+                }
             }
         ) {
             Card(
@@ -54,14 +58,17 @@ fun CalendarDialog(
                     modifier = Modifier,
                     onClickBtn1 = {
                         showDialog.value = false
-                        dialogViewModel.clearSelectedDate()
+                        if(!isForEdit){
+                            dialogViewModel.clearSelectedDate()
+                        }
                     },
                     onClickBtn2 = {
                         showDialog.value = false
+                        onEdit()
                     },
                     enabled = selectedDate != null,
                     btn1Text = "Cancel",
-                    btn2Text = "Choose Date"
+                    btn2Text = if(!isForEdit) "Choose Date" else "Edit Date"
                 )
             }
         }

@@ -32,10 +32,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,8 +47,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.plavsic.taskly.R
+import com.plavsic.taskly.core.UIState
 import com.plavsic.taskly.domain.category.model.CategoryIcon
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.ui.shared.calendar.CalendarDialog
@@ -57,6 +61,8 @@ import com.plavsic.taskly.ui.shared.common.TasklyButton
 import com.plavsic.taskly.ui.shared.common.TasklyTextField
 import com.plavsic.taskly.ui.shared.task.DialogViewModel
 import com.plavsic.taskly.ui.shared.task.TaskPriorityDialog
+import com.plavsic.taskly.ui.shared.task.TaskState
+import com.plavsic.taskly.ui.shared.task.TaskViewModel
 import com.plavsic.taskly.ui.theme.Background
 import com.plavsic.taskly.ui.theme.DarkerGray
 import com.plavsic.taskly.ui.theme.LightBlack
@@ -71,7 +77,8 @@ import com.plavsic.taskly.ui.theme.WhiteWithOpacity21
 fun TaskScreen(
     task: Task,
     navController:NavHostController,
-    dialogViewModel: DialogViewModel = hiltViewModel()
+    dialogViewModel: DialogViewModel = hiltViewModel(),
+    taskViewModel: TaskViewModel = hiltViewModel()
 ) {
     // Need this for changing Task Category Icon maybe implement this
     val editTask = remember { mutableStateOf(task) }
@@ -85,7 +92,9 @@ fun TaskScreen(
     val selectedCategory by dialogViewModel.selectedCategory
     val selectedPriority by dialogViewModel.selectedPriority
 
-    Log.i("EDITTASK",editTask.toString())
+    var isLoading by remember { mutableStateOf(false) }
+
+    val updatedUiState = taskViewModel.updatedUiState.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier
@@ -141,6 +150,13 @@ fun TaskScreen(
                 },
                 onDeleteTask = {
                     showDeleteDialog.value = true
+                },
+                onEdit = {
+                    taskViewModel.updateTask(editTask.value)
+                },
+                onEnable = {
+                    task != editTask.value && !isLoading
+
                 }
             )
 
@@ -151,12 +167,23 @@ fun TaskScreen(
 
             CalendarDialog(
                 showDialog = showCalendarDialog,
+                isForEdit = true,
+                onEdit = {
+                    editTask.value = editTask.value.copy(
+                        date = selectedDate
+                    )
+                },
                 dialogViewModel = dialogViewModel
             )
 
             CategoryDialog(
                 navController = navController,
                 isForEdit = true,
+                onEdit = {
+                    editTask.value = editTask.value.copy(
+                        category = selectedCategory
+                    )
+                },
                 dialogViewModel = dialogViewModel
             )
 
@@ -172,21 +199,38 @@ fun TaskScreen(
             )
 
             DeleteTaskDialog(
-                showDialog = showDeleteDialog
+                showDialog = showDeleteDialog,
+                taskTitle = task.title,
+                onDelete = {
+                    taskViewModel.deleteTask(task.taskId)
+                    navController.popBackStack()
+                }
             )
 
         }
     }
+    TaskState(
+        state = updatedUiState,
+        onLoading = {
+            isLoading = true
+        },
+        onSuccess = {
+            navController.popBackStack()
+        },
+        onError = {}
+    )
 }
 
 @Composable
 private fun Content(
     // Maybe add parameter task for onDeleteTask
     task:Task,
+    onEnable:() -> Boolean,
     onClickCalendar:() -> Unit,
     onClickCategory:() -> Unit,
     onClickPriority:() -> Unit,
-    onDeleteTask:() -> Unit
+    onDeleteTask:() -> Unit,
+    onEdit:() -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -279,7 +323,13 @@ private fun Content(
                 TasklyButton(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    onClick = {},
+                    enabled = onEnable(),
+                    onClick = {
+                        // Edit Task Button
+                        onEdit()
+                        Log.i("EditedTask",task.toString())
+
+                    },
                     text = "Edit Task",
                     containerColor = Purple,
                     contentColor = Color.White
@@ -420,6 +470,7 @@ fun EditTaskDialog(
                         title = taskTitle.value,
                         description = taskDescription.value
                     )
+                    showDialog.value = false
                 }
             )
         }
@@ -429,6 +480,8 @@ fun EditTaskDialog(
 @Composable
 fun DeleteTaskDialog(
     showDialog: MutableState<Boolean>,
+    taskTitle:String,
+    onDelete:() -> Unit
 ) {
     TaskDialog(
       showDialog = showDialog,
@@ -450,7 +503,7 @@ fun DeleteTaskDialog(
               )
 
               Text(
-                  text = "Task title: Do math homework",
+                  text = "Task title: $taskTitle",
                   fontSize = 14.sp
               )
 
@@ -465,7 +518,8 @@ fun DeleteTaskDialog(
                       showDialog.value = false
                   },
                   onClickBtn2 = {
-                      // Delete
+                      showDialog.value = false
+                      onDelete()
                   }
               )
           }
@@ -515,3 +569,27 @@ fun TaskDialog(
         }
     }
 }
+
+
+//@Composable
+//fun UpdateTaskState(
+//    state:State<UIState<Unit>>,
+//    onLoading:() -> Unit,
+//    onSuccess:() -> Unit,
+//    onError:() -> Unit
+//) {
+//    when(state.value){
+//        is UIState.Idle -> {}
+//
+//        is UIState.Loading -> {
+//            onLoading()
+//        }
+//        is UIState.Success -> {
+//            onSuccess()
+//        }
+//
+//        is UIState.Error -> {
+//            onError()
+//        }
+//    }
+//}

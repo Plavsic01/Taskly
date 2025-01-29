@@ -17,6 +17,7 @@ import com.plavsic.taskly.ui.loginScreen.LoginScreen
 import com.plavsic.taskly.ui.onboardingScreen.OnboardingScreen
 import com.plavsic.taskly.ui.registerScreen.RegisterScreen
 import com.plavsic.taskly.ui.shared.task.DialogViewModel
+import com.plavsic.taskly.ui.shared.task.TaskViewModel
 import com.plavsic.taskly.ui.startScreen.StartScreen
 import com.plavsic.taskly.ui.taskScreen.TaskScreen
 import com.plavsic.taskly.utils.gson.GsonInstance
@@ -56,7 +57,7 @@ fun AppNavigation(
             RegisterScreen(navController = navController)
         }
         composable(NavigationGraph.BottomNavigationBar.route) {
-            BottomNavigationBar(navController = navController,dialogViewModel = dialogViewModel)
+            BottomNavigationBar(navController = navController, dialogViewModel = dialogViewModel)
         }
         composable(NavigationGraph.CategoryScreen.route){
             CategoryScreen(navController = navController,dialogViewModel = dialogViewModel)

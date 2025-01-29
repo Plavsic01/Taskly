@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,7 +42,7 @@ import com.plavsic.taskly.ui.homeScreen.HomeScreen
 import com.plavsic.taskly.ui.profileScreen.ProfileScreen
 import com.plavsic.taskly.ui.shared.task.AddTaskDialog
 import com.plavsic.taskly.ui.shared.task.DialogViewModel
-import com.plavsic.taskly.ui.taskScreen.TaskScreen
+import com.plavsic.taskly.ui.shared.task.TaskViewModel
 import com.plavsic.taskly.ui.theme.DarkerGray
 import com.plavsic.taskly.ui.theme.Purple
 
@@ -50,7 +51,9 @@ import com.plavsic.taskly.ui.theme.Purple
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,
-    dialogViewModel: DialogViewModel
+    dialogViewModel: DialogViewModel,
+    taskViewModel: TaskViewModel = hiltViewModel()
+
 ) {
     val items = listOf(
         BottomNavigationItem.Home,
@@ -104,12 +107,14 @@ fun BottomNavigationBar(
         AddTaskDialog(
             showDialog = showTaskDialog,
             navController = navController,
-            dialogViewModel = dialogViewModel
+            dialogViewModel = dialogViewModel,
+            taskViewModel = taskViewModel
         )
 
         NavigationHost(
             navController = navController,
             bottomNavController = bottomNavController,
+            taskViewModel = taskViewModel
         )
     }
 }
@@ -216,13 +221,17 @@ fun TasklyNavigationBarItem(
 @Composable
 fun NavigationHost(
     navController: NavHostController,
-    bottomNavController:NavHostController
+    bottomNavController:NavHostController,
+    taskViewModel:TaskViewModel
 ) {
     NavHost(
         navController = bottomNavController,
         startDestination = BottomNavigationItem.Home.route,
     ) {
-        composable(BottomNavigationItem.Home.route) { HomeScreen(navController = navController) }
+        composable(BottomNavigationItem.Home.route) { HomeScreen(
+            navController = navController,
+            taskViewModel = taskViewModel
+        ) }
         composable(BottomNavigationItem.Calendar.route) {  }
         composable(BottomNavigationItem.Focus.route) {  }
         composable(BottomNavigationItem.Profile.route) { ProfileScreen() }

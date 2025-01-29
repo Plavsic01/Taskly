@@ -43,7 +43,7 @@ fun AddTaskDialog(
     showDialog: Boolean,
     navController:NavHostController,
     dialogViewModel: DialogViewModel,
-    taskViewModel: TaskViewModel = hiltViewModel(),
+    taskViewModel: TaskViewModel,
 ) {
     val showCalendarDialog = remember { mutableStateOf(false) }
     val showTaskPriorityDialog = remember { mutableStateOf(false) }
@@ -55,10 +55,9 @@ fun AddTaskDialog(
     val selectedCategory by dialogViewModel.selectedCategory
     val selectedPriority by dialogViewModel.selectedPriority
 
-    var isAddBtnEnabled by remember { mutableStateOf(true) }
+    var isLoading by remember { mutableStateOf(false) }
 
     val uiState = taskViewModel.uiState.collectAsStateWithLifecycle()
-
 
     if (showDialog) {
         Dialog(onDismissRequest = {
@@ -150,7 +149,10 @@ fun AddTaskDialog(
 
 
                         IconButton(
-                            enabled = isAddBtnEnabled,
+                            enabled = taskTitle.value.isNotEmpty() &&
+                                    taskDescription.value.isNotEmpty()
+                                    && !isLoading
+                                    && checkIfStatesAreNull(selectedDate,selectedCategory,selectedPriority),
                             onClick = {
                                 val task = Task(
                                     title = taskTitle.value,
@@ -169,12 +171,19 @@ fun AddTaskDialog(
                                 dialogViewModel.clearSelectedDate()
                                 dialogViewModel.clearSelectedPriority()
                                 dialogViewModel.clearSelectedCategory()
+
+                                dialogViewModel.hideTaskDialog()
                             }
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.send),
                                 contentDescription = "Send",
-                                tint = if(isAddBtnEnabled) Color(0xFF8687E7) else Black
+                                tint = if(taskTitle.value.isNotEmpty()
+                                    &&
+                                    taskDescription.value.isNotEmpty()
+                                    && !isLoading
+                                    && checkIfStatesAreNull(selectedDate,selectedCategory,selectedPriority))
+                                    Color(0xFF8687E7) else Black
                             )
                         }
                     }
@@ -197,43 +206,50 @@ fun AddTaskDialog(
         dialogViewModel = dialogViewModel,
     )
 
-    AddTaskState(
+    TaskState(
         state = uiState,
         onLoading = {
-            isAddBtnEnabled = false
+            isLoading = true
         },
         onSuccess = {
-            isAddBtnEnabled = true
+            isLoading = false
         },
         onError = {}
     )
 }
 
 
-@Composable
-fun AddTaskState(
-    state:State<UIState<Unit>>,
-    onLoading:() -> Unit,
-    onSuccess:() -> Unit,
-    onError:() -> Unit
-) {
-    when(state.value){
-        is UIState.Idle -> {}
 
-        is UIState.Loading -> {
-            onLoading()
-            Log.i("successData","LOADING")
-        }
-        is UIState.Success -> {
-            onSuccess()
-            Log.i("successData","USPESNO KREIRAN")
-        }
-
-        is UIState.Error -> {
-            onError()
-        }
+fun checkIfStatesAreNull(vararg states:Any?) : Boolean {
+    return states.all { state ->
+        state != null
     }
 }
+
+//@Composable
+//fun AddTaskState(
+//    state:State<UIState<Unit>>,
+//    onLoading:() -> Unit,
+//    onSuccess:() -> Unit,
+//    onError:() -> Unit
+//) {
+//    when(state.value){
+//        is UIState.Idle -> {}
+//
+//        is UIState.Loading -> {
+//            onLoading()
+//            Log.i("successData","LOADING")
+//        }
+//        is UIState.Success -> {
+//            onSuccess()
+//            Log.i("successData","USPESNO KREIRAN")
+//        }
+//
+//        is UIState.Error -> {
+//            onError()
+//        }
+//    }
+//}
 
 
 

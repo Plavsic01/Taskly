@@ -56,7 +56,7 @@ import com.plavsic.taskly.utils.gson.GsonInstance
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    taskViewModel: TaskViewModel = hiltViewModel(),
+    taskViewModel: TaskViewModel,
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val tasksState = taskViewModel.tasksState.collectAsStateWithLifecycle()
@@ -76,7 +76,8 @@ fun HomeScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.sort),
@@ -143,9 +144,7 @@ fun HomeScreen(
                         NoDataView()
                     }
                 },
-                onError = {
-                    Log.i("TASK_LOADED",it)
-                }
+                onError = {}
             )
         }
     }

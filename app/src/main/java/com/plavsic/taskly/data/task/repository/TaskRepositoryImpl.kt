@@ -14,6 +14,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(
@@ -21,15 +22,16 @@ class TaskRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : TaskRepository {
 
+    private val userId = auth.currentUser!!.uid
+
+    private val tasksCollection = firestore
+        .collection("users")
+        .document(userId)
+        .collection("tasks")
+
     override fun getTasks(): Flow<Response<List<Task>>> {
         return callbackFlow {
             try {
-
-                val tasksCollection = firestore
-                    .collection("users")
-                    .document(auth.currentUser!!.uid)
-                    .collection("tasks")
-
                 val listenerRegistration = tasksCollection
                     .addSnapshotListener { snapshot, exception ->
                         if (exception != null) {
@@ -37,6 +39,7 @@ class TaskRepositoryImpl @Inject constructor(
                             return@addSnapshotListener
                         }
                         val tasks = snapshot?.documents?.map {
+                            val taskId = it.getString("taskId") ?: ""
                             val title = it.getString("title") ?: ""
                             val description = it.getString("description") ?: ""
                             val date = it.get("date").toString().toLocalDate()
@@ -45,6 +48,7 @@ class TaskRepositoryImpl @Inject constructor(
                             val isCompleted = it.getBoolean("isCompleted") ?: false
 
                             Task(
+                                taskId,
                                 title,
                                 description,
                                 date,priority?.toPriority(),
@@ -53,7 +57,6 @@ class TaskRepositoryImpl @Inject constructor(
                             )
                         }
                             trySend(Response.Success(tasks ?: emptyList()))
-
                     }
 
                 awaitClose {
@@ -68,10 +71,10 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addTask(task:Task) {
-        val userId = auth.currentUser?.uid
+        val uuid = UUID.randomUUID().toString()
 
-        if(userId != null){
             val taskMap = hashMapOf(
+                "taskId" to uuid,
                 "title" to task.title,
                 "description" to task.description,
                 "date" to task.date?.toFirebaseString(),
@@ -80,22 +83,44 @@ class TaskRepositoryImpl @Inject constructor(
                 "isCompleted" to task.isCompleted,
             )
 
-            try {
-                firestore.collection("users")
-                    .document(userId)
-                    .collection("tasks")
-                    .add(taskMap)
-                    .await()
 
-                Log.i("Firestore","Document created successfully")
-            }catch (e:Exception) {
-                Log.e("Firestore", "Error while creating document: ${e.message}")
-            }
+            tasksCollection
+                .document(uuid)
+                .set(taskMap)
+                .await()
 
-        }else {
-            Log.e("Firestore", "User not logged in.")
-        }
+            Log.i("Firestore","Document created successfully")
+
+    }
+
+    override suspend fun updateTask(task: Task) {
+        val taskMap = hashMapOf(
+            "taskId" to task.taskId,
+            "title" to task.title,
+            "description" to task.description,
+            "date" to task.date?.toFirebaseString(),
+            "priority" to task.priority,
+            "category" to task.category,
+            "isCompleted" to task.isCompleted,
+        )
+
+        tasksCollection
+            .document(task.taskId)
+            .update(taskMap)
+            .await()
+
+        Log.i("Firestore","Document updated successfully")
+
+    }
+
+    override suspend fun deleteTask(taskId:String) {
+        tasksCollection
+            .document(taskId)
+            .delete()
+            .await()
     }
 }
+
+
 
 

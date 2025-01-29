@@ -1,5 +1,6 @@
 package com.plavsic.taskly.ui.shared.task
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.plavsic.taskly.core.Response
@@ -7,6 +8,7 @@ import com.plavsic.taskly.core.UIState
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.domain.task.repository.TaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,9 +21,11 @@ class TaskViewModel @Inject constructor(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
 
-
     private val _uiState:MutableStateFlow<UIState<Unit>> = MutableStateFlow(UIState.Idle)
     val uiState = _uiState.asStateFlow()
+
+    private val _updatedUiState:MutableStateFlow<UIState<Unit>> = MutableStateFlow(UIState.Idle)
+    val updatedUiState = _updatedUiState.asStateFlow()
 
     val tasksState = taskRepository.getTasks()
         .stateIn(
@@ -30,7 +34,7 @@ class TaskViewModel @Inject constructor(
             initialValue = Response.Loading
         )
 
-    fun addTask(task: Task){
+    fun addTask(task: Task) {
         viewModelScope.launch {
             _uiState.value = UIState.Loading
             try {
@@ -39,7 +43,24 @@ class TaskViewModel @Inject constructor(
             }catch (e:Exception){
                 _uiState.value = UIState.Error(message = e.message!!)
             }
+        }
+    }
 
+    fun updateTask(task:Task) {
+        viewModelScope.launch {
+            _updatedUiState.value = UIState.Loading
+            try {
+                taskRepository.updateTask(task)
+                _updatedUiState.value = UIState.Success(Unit)
+            }catch (e:Exception) {
+                _updatedUiState.value = UIState.Error(message = e.message!!)
+            }
+        }
+    }
+
+    fun deleteTask(taskId:String) {
+        viewModelScope.launch {
+            taskRepository.deleteTask(taskId)
         }
     }
 
