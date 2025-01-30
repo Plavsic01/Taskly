@@ -19,7 +19,7 @@ class DialogViewModel @Inject constructor() : ViewModel() {
     private val _isTaskDialogVisible = mutableStateOf(false)
     val isTaskDialogVisible: State<Boolean> get() = _isTaskDialogVisible
 
-    private val _selectedDate: MutableState<LocalDate?> = mutableStateOf(null)
+    private val _selectedDate: MutableState<LocalDate?> = mutableStateOf(LocalDate.now())
     val selectedDate: State<LocalDate?> get() = _selectedDate
 
     private val _selectedCategory: MutableState<Category?> = mutableStateOf(null)
