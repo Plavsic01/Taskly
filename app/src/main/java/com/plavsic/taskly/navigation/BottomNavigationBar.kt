@@ -99,7 +99,7 @@ fun BottomNavigationBar(
 
 
             TasklyBottomNavigationBar(
-                navController = navController,
+                navController = bottomNavController,
                 items = items
             )
         }
@@ -144,7 +144,12 @@ fun TasklyBottomNavigationBar(
                 horizontalArrangement = Arrangement.spacedBy((-10).dp)
             ) {
             items.take(2).forEachIndexed { index, item ->
-                TasklyBottomNavItemImpl(item, selectedNavItem, index)
+                TasklyBottomNavItemImpl(
+                    navController = navController,
+                    item = item,
+                    selectedNavItem = selectedNavItem,
+                    index =index
+                )
                 }
             }
 
@@ -153,7 +158,13 @@ fun TasklyBottomNavigationBar(
                 horizontalArrangement = Arrangement.spacedBy((-10).dp)
             ) {
                 items.takeLast(2).forEachIndexed { index, item ->
-                    TasklyBottomNavItemImpl(item, selectedNavItem, index,add = 2)
+                    TasklyBottomNavItemImpl(
+                        navController = navController,
+                        item = item,
+                        selectedNavItem = selectedNavItem,
+                        index = index,
+                        add = 2
+                    )
                 }
             }
         }
@@ -162,6 +173,7 @@ fun TasklyBottomNavigationBar(
 
 @Composable
 private fun TasklyBottomNavItemImpl(
+    navController: NavHostController,
     item: BottomNavigationItem,
     selectedNavItem: MutableIntState,
     index: Int,
@@ -185,7 +197,12 @@ private fun TasklyBottomNavItemImpl(
         },
         onClick = {
             selectedNavItem.intValue = index + add
-            Log.i("BtnClick", "Clicked Btn $index")
+            when(selectedNavItem.intValue) {
+                0 -> navController.navigate(BottomNavigationItem.Home.route)
+                1 -> navController.navigate(BottomNavigationItem.Calendar.route)
+                2 -> navController.navigate(BottomNavigationItem.Focus.route)
+                3 -> navController.navigate(BottomNavigationItem.Profile.route)
+            }
         }
     )
 }
@@ -194,8 +211,8 @@ private fun TasklyBottomNavItemImpl(
 @Composable
 fun TasklyNavigationBarItem(
 //    selected:Boolean,
-    label: @Composable (() -> Unit),
-    icon: @Composable (() -> Unit),
+    label: @Composable () -> Unit,
+    icon: @Composable () -> Unit,
     onClick: () -> Unit
 ) {
         Button(

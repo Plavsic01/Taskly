@@ -1,5 +1,6 @@
 package com.plavsic.taskly.ui.shared.calendar
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +28,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,8 +36,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.plavsic.taskly.ui.shared.common.Divider
-import com.plavsic.taskly.ui.theme.Black
+import com.plavsic.taskly.ui.theme.DarkGray
 import com.plavsic.taskly.ui.theme.DarkerGray
+import com.plavsic.taskly.ui.theme.LightBlack
 import com.plavsic.taskly.ui.theme.Purple
 import java.time.LocalDate
 import java.time.YearMonth
@@ -49,7 +50,12 @@ fun CalendarView(
     onSelectedDate:(LocalDate?) -> Unit
 ){
 
-    var currentMonth by remember { mutableStateOf(YearMonth.now()) }
+    var currentMonth by if(chosenDate == null){
+        remember { mutableStateOf(YearMonth.now()) }
+    }else{
+        remember { mutableStateOf(YearMonth.of(chosenDate.year,chosenDate.month)) }
+    }
+
     var selectedDate:LocalDate? by remember { mutableStateOf(chosenDate) }
 
     Column(
@@ -72,14 +78,15 @@ fun CalendarView(
 
         Spacer(modifier = Modifier.height(5.dp))
 
-//        Separator line
 
         Divider()
+
 
         CalendarGrid(
             month = currentMonth,
             chosenDate = chosenDate,
             onSelectedDate = {
+                Log.i("IZABRAN_DATUM_KLIK",it.toString())
                 selectedDate = it
                 onSelectedDate(it)
             }
@@ -143,7 +150,8 @@ fun CalendarGrid(
     month: YearMonth,
     onSelectedDate:(LocalDate) -> Unit
 ){
-    val monthLength = month.lengthOfMonth() // how many days are in this month
+    // how many days are in this month
+    val monthLength = month.lengthOfMonth()
 
     // first day so we can determine where month starts
     val firstDayOfWeek = month.atDay(1).dayOfWeek.value - 1 // Wednesday -> 3 - 1 = index 2
@@ -187,8 +195,10 @@ fun DayItem(
 
     val itemColor:Color = if(selectedDate != null && selectedDate == date){
          Purple
+    }else if(date != null && (date.isEqual(LocalDate.now()) || date.isAfter(LocalDate.now()))){
+        DarkGray
     }else{
-        Black
+        LightBlack
     }
 
     Text(
@@ -210,15 +220,26 @@ fun DayItem(
 @Composable
 fun DaysIWeek(){
 
+//    val days = listOf(
+//        DaysInWeek.Monday,
+//        DaysInWeek.Tuesday,
+//        DaysInWeek.Wednesday,
+//        DaysInWeek.Thursday,
+//        DaysInWeek.Friday,
+//        DaysInWeek.Saturday,
+//        DaysInWeek.Sunday,
+//    )
+
     val days = listOf(
-        DaysInWeek.Monday,
-        DaysInWeek.Tuesday,
-        DaysInWeek.Wednesday,
-        DaysInWeek.Thursday,
-        DaysInWeek.Friday,
-        DaysInWeek.Saturday,
-        DaysInWeek.Sunday,
+        DaysInWeek.MONDAY,
+        DaysInWeek.TUESDAY,
+        DaysInWeek.WEDNESDAY,
+        DaysInWeek.THURSDAY,
+        DaysInWeek.FRIDAY,
+        DaysInWeek.SATURDAY,
+        DaysInWeek.SUNDAY,
     )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -228,7 +249,7 @@ fun DaysIWeek(){
     ) {
         for (day in days){
             Text(
-                text = day.name,
+                text = day.day,
                 textAlign = TextAlign.Justify,
                 fontSize = 14.sp,
                 color = day.color
@@ -242,7 +263,7 @@ fun Modifier.shouldClick(
     date: LocalDate?,
     onClick:() -> Unit
 ) : Modifier {
-    return if(date != null){
+    return if(date != null && (date.isEqual(LocalDate.now()) || date.isAfter(LocalDate.now()))){
         this.then(Modifier.clickable {
             onClick()
         })
@@ -251,16 +272,25 @@ fun Modifier.shouldClick(
     }
 }
 
-
-sealed class DaysInWeek(val name:String,val color:Color){
-    data object Monday : DaysInWeek(name = "MON", color = Color.White)
-    data object Tuesday : DaysInWeek(name = "TUE", color = Color.White)
-    data object Wednesday : DaysInWeek(name = "WED", color = Color.White)
-    data object Thursday : DaysInWeek(name = "THU  ", color = Color.White)
-    data object Friday : DaysInWeek(name = "FRI  ", color = Color.White)
-    data object Saturday : DaysInWeek(name = "SAT", color = Color.Red)
-    data object Sunday : DaysInWeek(name = "SUN", color = Color.Red)
+enum class DaysInWeek(val day:String,val color:Color){
+    MONDAY(day = "MON", color = Color.White),
+    TUESDAY(day = "TUE", color = Color.White),
+    WEDNESDAY(day = "WED", color = Color.White),
+    THURSDAY(day = "THU  ", color = Color.White),
+    FRIDAY(day = "FRI  ", color = Color.White),
+    SATURDAY(day = "SAT", color = Color.Red),
+    SUNDAY(day = "SUN", color = Color.Red);
 }
+
+//sealed class DaysInWeek(val name:String,val color:Color){
+//    data object Monday : DaysInWeek(name = "MON", color = Color.White)
+//    data object Tuesday : DaysInWeek(name = "TUE", color = Color.White)
+//    data object Wednesday : DaysInWeek(name = "WED", color = Color.White)
+//    data object Thursday : DaysInWeek(name = "THU  ", color = Color.White)
+//    data object Friday : DaysInWeek(name = "FRI  ", color = Color.White)
+//    data object Saturday : DaysInWeek(name = "SAT", color = Color.Red)
+//    data object Sunday : DaysInWeek(name = "SUN", color = Color.Red)
+//}
 
 
 

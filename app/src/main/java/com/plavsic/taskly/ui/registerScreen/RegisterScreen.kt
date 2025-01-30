@@ -137,7 +137,7 @@ fun RegisterScreen(
             isEnabled.value = false
         },
         onSuccess = {
-            navController.navigate(NavigationGraph.BottomNavigationBar.route)
+            navController.navigate(NavigationGraph.MainScreen.route)
         },
         onError = {
             Log.i("Error","Error Occurred")
@@ -185,9 +185,3 @@ fun RegisterState(
     }
 }
 
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun RegisterScreenPreview(){
-//    RegisterScreen()
-}

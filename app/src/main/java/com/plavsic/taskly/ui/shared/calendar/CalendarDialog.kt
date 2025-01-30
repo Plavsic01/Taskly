@@ -1,6 +1,5 @@
 package com.plavsic.taskly.ui.shared.calendar
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,24 +14,30 @@ import androidx.compose.ui.window.Dialog
 import com.plavsic.taskly.ui.shared.common.DualActionButtons
 import com.plavsic.taskly.ui.shared.task.DialogViewModel
 import com.plavsic.taskly.ui.theme.DarkerGray
+import java.time.LocalDate
 
 @Composable
 fun CalendarDialog(
     showDialog: MutableState<Boolean>,
+    editDate:LocalDate? = null,
     isForEdit:Boolean = false,
     onEdit:() -> Unit = {},
-    dialogViewModel: DialogViewModel,
+    dialogViewModel: DialogViewModel
 ) {
 
     val selectedDate by dialogViewModel.selectedDate
 
     if(showDialog.value){
-        Log.i("selectedDate",selectedDate.toString())
+        if(isForEdit){
+            dialogViewModel.setSelectedDate(editDate)
+        }else{
+            dialogViewModel.setSelectedDate(LocalDate.now())
+        }
         Dialog(
             onDismissRequest = {
                 showDialog.value = false
-                if(!isForEdit){
-                    dialogViewModel.clearSelectedDate()
+                if(!isForEdit && selectedDate != LocalDate.now()){
+                    dialogViewModel.setSelectedDate(LocalDate.now())
                 }
             }
         ) {
@@ -58,8 +63,8 @@ fun CalendarDialog(
                     modifier = Modifier,
                     onClickBtn1 = {
                         showDialog.value = false
-                        if(!isForEdit){
-                            dialogViewModel.clearSelectedDate()
+                        if(!isForEdit && selectedDate != LocalDate.now()){
+                            dialogViewModel.setSelectedDate(LocalDate.now())
                         }
                     },
                     onClickBtn2 = {

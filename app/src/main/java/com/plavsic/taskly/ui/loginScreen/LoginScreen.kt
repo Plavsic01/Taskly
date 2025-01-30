@@ -123,7 +123,7 @@ fun LoginScreen(
             isEnabled.value = false
         },
         onSuccess = {
-            navController.navigate(NavigationGraph.BottomNavigationBar.route)
+            navController.navigate(NavigationGraph.MainScreen.route)
         },
         onError = {
             Log.i("Error","Error Occurred")
@@ -171,12 +171,4 @@ fun LoginState(
             }
         }
     }
-}
-
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun LoginScreenPreview(){
-//    LoginScreen()
 }

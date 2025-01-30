@@ -40,7 +40,7 @@ fun AppNavigation(
 //            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700))
 //        },
         startDestination = if(navigationViewModel.isLoggedIn.value)
-            NavigationGraph.BottomNavigationBar.route
+            NavigationGraph.MainScreen.route
         else
             NavigationGraph.OnboardingScreen.route
     ) {
@@ -56,7 +56,7 @@ fun AppNavigation(
         composable(NavigationGraph.RegisterScreen.route) {
             RegisterScreen(navController = navController)
         }
-        composable(NavigationGraph.BottomNavigationBar.route) {
+        composable(NavigationGraph.MainScreen.route) {
             BottomNavigationBar(navController = navController, dialogViewModel = dialogViewModel)
         }
         composable(NavigationGraph.CategoryScreen.route){
@@ -79,7 +79,7 @@ sealed class NavigationGraph(val route:String) {
     data object StartScreen : NavigationGraph(route = "start_screen")
     data object LoginScreen : NavigationGraph(route = "login_screen")
     data object RegisterScreen : NavigationGraph(route = "register_screen")
-    data object BottomNavigationBar : NavigationGraph(route = "bottom_navigation_bar")
+    data object MainScreen : NavigationGraph(route = "main_screen")
     data object CategoryScreen : NavigationGraph(route = "category_screen")
     data object TaskScreen : NavigationGraph(route = "task_screen")
 }

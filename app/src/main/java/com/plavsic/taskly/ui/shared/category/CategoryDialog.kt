@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -103,8 +104,12 @@ fun CategoryDialog(
                 ) {
                     items(categoriesWithAddButton){
                         CategoryItem(
-                            category = it,
+                            modifier = Modifier.size(40.dp),
                             isSelected = it == selectedCategory,
+                            name = it.name,
+                            backgroundColor = it.color,
+                            icon = CategoryIcon.fromName(it.image)!!.resId,
+                            contentDescription = it.name,
                             onClick = {
                                 if(it.name != "Create New") {
                                     dialogViewModel.setSelectedCategory(it)
@@ -140,8 +145,12 @@ fun CategoryDialog(
 
 @Composable
 fun CategoryItem(
-    category: Category,
-    isSelected:Boolean,
+    modifier: Modifier = Modifier,
+    isSelected:Boolean = false,
+    name:String = "",
+    backgroundColor:Long? = null,
+    icon:Int,
+    contentDescription:String,
     onClick:() -> Unit
 ){
 
@@ -167,18 +176,21 @@ fun CategoryItem(
             modifier = Modifier
                 .width(64.dp)
                 .height(64.dp)
-                .background(color = Color(value = longToULong(category.color)),shape = RoundedCornerShape(4.dp)),
+                .background(color = Color(
+                    value = longToULong(backgroundColor ?: Color.Transparent.value.toLong())),
+                    shape = RoundedCornerShape(4.dp)),
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(CategoryIcon.fromName(category.image)!!.resId),
-                contentDescription = category.name,
+                modifier = modifier,
+                painter = painterResource(icon),
+                contentDescription = contentDescription,
             )
         }
 
         Text(
-            text = category.name,
-            fontSize = 14.sp,
+            text = name,
+            fontSize = 12.sp,
             color = WhiteWithOpacity87
         )
     }

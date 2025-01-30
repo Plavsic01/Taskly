@@ -80,13 +80,13 @@ fun TaskScreen(
     dialogViewModel: DialogViewModel = hiltViewModel(),
     taskViewModel: TaskViewModel = hiltViewModel()
 ) {
-    // Need this for changing Task Category Icon maybe implement this
     val editTask = remember { mutableStateOf(task) }
 
     val showEditDialog = remember { mutableStateOf(false) }
     val showDeleteDialog = remember { mutableStateOf(false) }
     val showPriorityDialog = remember { mutableStateOf(false) }
     val showCalendarDialog = remember { mutableStateOf(false) }
+
 
     val selectedDate by dialogViewModel.selectedDate
     val selectedCategory by dialogViewModel.selectedCategory
@@ -95,6 +95,8 @@ fun TaskScreen(
     var isLoading by remember { mutableStateOf(false) }
 
     val updatedUiState = taskViewModel.updatedUiState.collectAsStateWithLifecycle()
+
+    Log.i("SelectedDate",selectedDate.toString())
 
     Scaffold(
         modifier = Modifier
@@ -167,6 +169,7 @@ fun TaskScreen(
 
             CalendarDialog(
                 showDialog = showCalendarDialog,
+                editDate = editTask.value.date,
                 isForEdit = true,
                 onEdit = {
                     editTask.value = editTask.value.copy(
