@@ -6,10 +6,10 @@ import com.plavsic.taskly.core.UIState
 
 @Composable
 fun TaskState(
-    state: State<UIState<Unit>>,
+    state: State<UIState<Any>>,
     onIdle:() -> Unit = {},
     onLoading:() -> Unit,
-    onSuccess:() -> Unit,
+    onSuccess:(Any) -> Unit,
     onError:() -> Unit
 ) {
     when(state.value){
@@ -21,7 +21,8 @@ fun TaskState(
             onLoading()
         }
         is UIState.Success -> {
-            onSuccess()
+            val data = (state.value as UIState.Success<Any>).data
+            onSuccess(data)
         }
 
         is UIState.Error -> {

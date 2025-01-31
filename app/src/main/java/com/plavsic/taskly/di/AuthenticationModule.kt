@@ -1,6 +1,7 @@
 package com.plavsic.taskly.di
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.plavsic.taskly.data.auth.repository.AuthenticationRepositoryImpl
 import com.plavsic.taskly.domain.auth.repository.AuthenticationRepository
 import dagger.Module
@@ -19,6 +20,7 @@ object AuthenticationModule {
     @Provides
     @Singleton
     fun provideAuthenticationRepository(
-        auth: FirebaseAuth
-    ): AuthenticationRepository = AuthenticationRepositoryImpl(auth)
+        auth: FirebaseAuth,
+        firestore: FirebaseFirestore,
+    ): AuthenticationRepository = AuthenticationRepositoryImpl(auth,firestore)
 }

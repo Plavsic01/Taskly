@@ -57,7 +57,7 @@ import com.plavsic.taskly.utils.gson.GsonInstance
 fun HomeScreen(
     navController: NavHostController,
     taskViewModel: TaskViewModel,
-    profileViewModel: ProfileViewModel = hiltViewModel()
+    profileViewModel: ProfileViewModel
 ) {
     val tasksState = taskViewModel.tasksState.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }

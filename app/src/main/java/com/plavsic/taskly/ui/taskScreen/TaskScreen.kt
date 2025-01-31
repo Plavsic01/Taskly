@@ -96,8 +96,6 @@ fun TaskScreen(
 
     val updatedUiState = taskViewModel.updatedUiState.collectAsStateWithLifecycle()
 
-    Log.i("SelectedDate",selectedDate.toString())
-
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -226,7 +224,6 @@ fun TaskScreen(
 
 @Composable
 private fun Content(
-    // Maybe add parameter task for onDeleteTask
     task:Task,
     onEnable:() -> Boolean,
     onClickCalendar:() -> Unit,

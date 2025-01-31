@@ -36,10 +36,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.plavsic.taskly.R
 import com.plavsic.taskly.ui.homeScreen.HomeScreen
 import com.plavsic.taskly.ui.profileScreen.ProfileScreen
+import com.plavsic.taskly.ui.profileScreen.ProfileViewModel
 import com.plavsic.taskly.ui.shared.task.AddTaskDialog
 import com.plavsic.taskly.ui.shared.task.DialogViewModel
 import com.plavsic.taskly.ui.shared.task.TaskViewModel
@@ -125,7 +127,17 @@ fun TasklyBottomNavigationBar(
     items:List<BottomNavigationItem>
 ) {
 
+    val currentBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry.value?.destination?.route
+
     val selectedNavItem = remember { mutableIntStateOf(0) }
+
+    when (currentRoute) {
+        "home" -> selectedNavItem.intValue = 0
+        "calendar" -> selectedNavItem.intValue = 1
+        "focus" -> selectedNavItem.intValue = 2
+        "profile" -> selectedNavItem.intValue = 3
+    }
 
     Box(
         modifier = Modifier
@@ -198,10 +210,22 @@ private fun TasklyBottomNavItemImpl(
         onClick = {
             selectedNavItem.intValue = index + add
             when(selectedNavItem.intValue) {
-                0 -> navController.navigate(BottomNavigationItem.Home.route)
-                1 -> navController.navigate(BottomNavigationItem.Calendar.route)
-                2 -> navController.navigate(BottomNavigationItem.Focus.route)
-                3 -> navController.navigate(BottomNavigationItem.Profile.route)
+                0 -> navController.navigate(BottomNavigationItem.Home.route){
+                    launchSingleTop = true
+                    popUpTo(BottomNavigationItem.Home.route) { inclusive = true }
+                }
+                1 -> navController.navigate(BottomNavigationItem.Calendar.route){
+                    launchSingleTop = true
+                    popUpTo(BottomNavigationItem.Calendar.route) { inclusive = true }
+                }
+                2 -> navController.navigate(BottomNavigationItem.Focus.route){
+                    launchSingleTop = true
+                    popUpTo(BottomNavigationItem.Focus.route) { inclusive = true }
+                }
+                3 -> navController.navigate(BottomNavigationItem.Profile.route) {
+                    launchSingleTop = true
+                    popUpTo(BottomNavigationItem.Profile.route) { inclusive = true }
+                }
             }
         }
     )
@@ -210,7 +234,6 @@ private fun TasklyBottomNavItemImpl(
 
 @Composable
 fun TasklyNavigationBarItem(
-//    selected:Boolean,
     label: @Composable () -> Unit,
     icon: @Composable () -> Unit,
     onClick: () -> Unit
@@ -239,7 +262,8 @@ fun TasklyNavigationBarItem(
 fun NavigationHost(
     navController: NavHostController,
     bottomNavController:NavHostController,
-    taskViewModel:TaskViewModel
+    taskViewModel:TaskViewModel,
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     NavHost(
         navController = bottomNavController,
@@ -247,11 +271,14 @@ fun NavigationHost(
     ) {
         composable(BottomNavigationItem.Home.route) { HomeScreen(
             navController = navController,
-            taskViewModel = taskViewModel
+            taskViewModel = taskViewModel,
+            profileViewModel = profileViewModel
         ) }
         composable(BottomNavigationItem.Calendar.route) {  }
         composable(BottomNavigationItem.Focus.route) {  }
-        composable(BottomNavigationItem.Profile.route) { ProfileScreen() }
+        composable(BottomNavigationItem.Profile.route) {
+            ProfileScreen(profileViewModel = profileViewModel)
+        }
     }
 }
 
