@@ -39,6 +39,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.plavsic.taskly.R
+import com.plavsic.taskly.ui.calendarScreen.CalendarScreen
 import com.plavsic.taskly.ui.homeScreen.HomeScreen
 import com.plavsic.taskly.ui.profileScreen.ProfileScreen
 import com.plavsic.taskly.ui.profileScreen.ProfileViewModel
@@ -274,10 +275,17 @@ fun NavigationHost(
             taskViewModel = taskViewModel,
             profileViewModel = profileViewModel
         ) }
-        composable(BottomNavigationItem.Calendar.route) {  }
+        composable(BottomNavigationItem.Calendar.route) {
+            CalendarScreen(
+                taskViewModel = taskViewModel
+            )
+        }
         composable(BottomNavigationItem.Focus.route) {  }
         composable(BottomNavigationItem.Profile.route) {
-            ProfileScreen(profileViewModel = profileViewModel)
+            ProfileScreen(
+                navController = navController,
+                profileViewModel = profileViewModel
+            )
         }
     }
 }

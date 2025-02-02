@@ -3,6 +3,7 @@ package com.plavsic.taskly.ui.shared.common
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -27,11 +28,13 @@ import com.plavsic.taskly.ui.theme.LightBlack
 
 @Composable
 fun TasklyTextField(
+    modifier: Modifier = Modifier,
     state: MutableState<String>,
-    placeholder:String,
+    placeholder:String = "",
     isPassword:Boolean = false,
     isEmail:Boolean = false,
     showBorder:Boolean = true,
+    label: @Composable (() -> Unit)? = null,
     unfocusedContainerColor:Color = LightBlack,
     onValueChange:(String) -> Unit
 ) {
@@ -45,6 +48,7 @@ fun TasklyTextField(
     }
 
     TextField(
+        label = label,
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = unfocusedContainerColor,
             unfocusedPlaceholderColor = DarkGray,
@@ -53,7 +57,7 @@ fun TasklyTextField(
         ),
         shape = RoundedCornerShape(8.dp),
         keyboardOptions = keyboardOptions,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .addBorder(showBorderState){
                 border(1.dp, Gray, shape = RoundedCornerShape(8.dp))

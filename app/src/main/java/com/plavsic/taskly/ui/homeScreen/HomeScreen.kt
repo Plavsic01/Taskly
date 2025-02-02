@@ -9,21 +9,26 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -33,25 +38,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.plavsic.taskly.R
 import com.plavsic.taskly.core.Response
+import com.plavsic.taskly.domain.auth.model.UserInfo
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.navigation.NavigationGraph
+import com.plavsic.taskly.navigation.NoRippleInteractionSource
 import com.plavsic.taskly.ui.profileScreen.ProfileViewModel
-import com.plavsic.taskly.ui.shared.common.TasklyTextField
+import com.plavsic.taskly.ui.shared.task.TaskState
 import com.plavsic.taskly.ui.shared.task.TaskView
 import com.plavsic.taskly.ui.shared.task.TaskViewModel
+import com.plavsic.taskly.ui.theme.Background
+import com.plavsic.taskly.ui.theme.DarkerGray
 import com.plavsic.taskly.utils.gson.GsonInstance
+import java.time.LocalDate
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
@@ -60,95 +71,154 @@ fun HomeScreen(
     profileViewModel: ProfileViewModel
 ) {
     val tasksState = taskViewModel.tasksState.collectAsStateWithLifecycle()
-    var showSearch by remember { mutableStateOf(false) }
-    val search = remember { mutableStateOf("") }
-
-    val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
-    val offsetY = screenHeightDp * 0.1f
+    val userInfo = profileViewModel.userInfo.collectAsStateWithLifecycle()
+    var userData by remember { mutableStateOf(UserInfo("","")) }
 
     Scaffold(
+        modifier = Modifier
+            .systemBarsPadding()
+            .padding(horizontal = 30.dp, vertical = 10.dp),
         topBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .offset(y = offsetY),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Background
+                ),
+                title = {
+                    Text(
+                        text = "Home",
+                        fontSize = 20.sp
+                    )
+                },
+                navigationIcon = {
                     Icon(
                         painter = painterResource(R.drawable.sort),
                         contentDescription = "Sort"
                     )
-                    Text("Home")
-
+                },
+                actions = {
                     AsyncImage(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(shape = CircleShape),
-                        model = profileViewModel.getUserProfilePicture(),
+                        model = userData.image,
                         contentDescription = "Avatar"
                     )
                 }
-                if(showSearch){
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 15.dp)
-                    ){
-                        TasklyTextField(
-                            state = search,
-                            placeholder = "Search for your task...",
-                            onValueChange = {input ->
-                                search.value = input
-                            }
-                        )
-                    }
-                }
-            }
+            )
         }
-    ) {
+    ){
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 10.dp)
-            ,
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-
             GetTasksState(
                 state = tasksState,
                 onLoading = {
                     CircularProgressIndicator()
                 },
-                onSuccess = {
-                    if(it.isNotEmpty()){
-                        showSearch = true
+                onSuccess = { list ->
+                    if(list.isNotEmpty() && list.any { task ->
+                            task.date == LocalDate.now()
+                        }){
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 70.dp, bottom = 100.dp),
+                            verticalArrangement = Arrangement.Top
+                        ) {
 
-                        Log.i("TASK_LOADED",it.toString())
+                            TextButton(
+                                interactionSource = NoRippleInteractionSource(),
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Color.White,
+                                    containerColor = DarkerGray
+                                ),
+                                shape = RoundedCornerShape(4.dp),
+                                onClick = {}
+                            ) {
+                                Text(
+                                    modifier = Modifier
+                                        .padding(end = 5.dp),
+                                    text = "Today",
+                                    fontSize = 12.sp
+                                )
 
-                        TasksLazyColumn(
-                            tasks = it,
-                            onClick = {task ->
-                                val encodedTask = Uri.encode(GsonInstance.gson.toJson(task))
-                                navController.navigate("${NavigationGraph.TaskScreen.route}/$encodedTask")
+                                Icon(
+                                    painter = painterResource(id = R.drawable.arrow_down),
+                                    contentDescription = "Arrow Down"
+                                )
                             }
-                        )
+
+
+                            TasksLazyColumn(
+                                tasks = list.filter { task ->
+                                    task.date == LocalDate.now() && !task.isCompleted
+                                },
+                                min = 0.dp,
+                                max = 300.dp,
+                                onClick = {task ->
+                                    val encodedTask = Uri.encode(GsonInstance.gson.toJson(task))
+                                    navController.navigate("${NavigationGraph.TaskScreen.route}/$encodedTask")
+                                }
+                            )
+
+                            TextButton(
+                                interactionSource = NoRippleInteractionSource(),
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Color.White,
+                                    containerColor = DarkerGray
+                                ),
+                                shape = RoundedCornerShape(4.dp),
+                                onClick = {}
+                            ) {
+                                Text(
+                                    modifier = Modifier
+                                        .padding(end = 5.dp),
+                                    text = "Completed",
+                                    fontSize = 12.sp
+                                )
+
+                                Icon(
+                                    painter = painterResource(id = R.drawable.arrow_down),
+                                    contentDescription = "Arrow Down"
+                                )
+                            }
+
+                            TasksLazyColumn(
+                                tasks = list.filter { task ->
+                                    task.isCompleted && task.date == LocalDate.now()
+                                },
+                                min = 100.dp,
+                                max = 200.dp,
+                                onClick = {task ->
+                                    val encodedTask = Uri.encode(GsonInstance.gson.toJson(task))
+                                    navController.navigate("${NavigationGraph.TaskScreen.route}/$encodedTask")
+                                }
+                            )
+
+                        }
+
                     }else {
-                        showSearch = false
                         NoDataView()
                     }
                 },
-                onError = {}
+                onError = {
+                    NoDataView()
+                }
             )
         }
     }
-
+    TaskState(
+        state = userInfo,
+        onLoading = {},
+        onSuccess = {
+            val data = it as UserInfo
+            userData = data
+        },
+        onError = {}
+    )
 }
 
 @Composable
@@ -172,14 +242,17 @@ private fun NoDataView() {
 }
 
 @Composable
-private fun TasksLazyColumn(
+fun TasksLazyColumn(
     tasks: List<Task>,
+    min:Dp,
+    max:Dp,
     onClick:(Task) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.height(310.dp),
+        modifier = Modifier
+            .heightIn(min = min,max = max),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(15.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(tasks) { task ->
             TaskView(
@@ -203,12 +276,10 @@ fun GetTasksState(
     when(state.value){
         is Response.Loading -> {
             onLoading()
-            Log.i("successData","LOADING")
         }
 
         is Response.Success -> {
             val tasks = (state.value as Response.Success<List<Task>>).data
-            Log.i("successData",tasks.toString())
             onSuccess(tasks)
         }
 

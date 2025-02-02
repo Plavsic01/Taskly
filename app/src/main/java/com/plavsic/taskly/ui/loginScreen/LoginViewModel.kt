@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
 import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.domain.auth.repository.AuthenticationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class LoginViewModel @Inject constructor(
+    private val auth: FirebaseAuth,
     private val authenticationRepository: AuthenticationRepository
 ) : ViewModel(){
 
@@ -29,11 +31,24 @@ open class LoginViewModel @Inject constructor(
         }
     }
 
+    fun createUserDocument(
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ){
+        authenticationRepository.createUserDocument(
+            onSuccess,
+            onFailure
+        )
+    }
+
+
     fun loginWithGoogle(credential: Credential) = viewModelScope.launch {
         if(credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL){
             val googleIdTokenCredential = GoogleIdTokenCredential
                 .createFrom(credential.data)
-            authenticationRepository.loginWithGoogle(googleIdTokenCredential.idToken).collect { response ->
+            val idToken = googleIdTokenCredential.idToken
+
+            authenticationRepository.loginWithGoogle(idToken).collect { response ->
                 _loginFlow.emit(response)
             }
         }else{

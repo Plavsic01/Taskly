@@ -1,22 +1,17 @@
 package com.plavsic.taskly.data.auth.repository
 
-import android.net.Uri
+
 import android.util.Log
-import androidx.compose.animation.core.snap
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.core.UIState
 import com.plavsic.taskly.domain.auth.model.UserInfo
 import com.plavsic.taskly.domain.auth.repository.AuthenticationRepository
-import com.plavsic.taskly.domain.task.model.Task
-import com.plavsic.taskly.utils.conversion.toCategory
-import com.plavsic.taskly.utils.conversion.toLocalDate
-import com.plavsic.taskly.utils.conversion.toPriority
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -29,33 +24,59 @@ class AuthenticationRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : AuthenticationRepository {
 
-    override suspend fun getProfilePicture() :String {
-        return ""
-    }
-
-    override suspend fun updateProfilePhoto(photoUrl: String) {
-        val user = auth.currentUser
-
-        user?.let {
-            val profileUpdate = UserProfileChangeRequest.Builder()
-                .setPhotoUri(Uri.parse(photoUrl))
-                .build()
-
-            user.updateProfile(profileUpdate)
-                .await()
-        }
-    }
-
     override fun userUid(): String = auth.currentUser?.uid ?: ""
 
     override fun currentUser(): FirebaseUser? = auth.currentUser
 
+    override suspend fun updateUsername(username: String) {
+        val userInfo = firestore
+            .collection("users")
+            .document(userUid())
+        userInfo.update("username",username).await()
+    }
+
+    override suspend fun updateProfilePicture(uri: String) {
+        val userInfo = firestore
+            .collection("users")
+            .document(userUid())
+        userInfo.update("image",uri).await()
+    }
+
+
+    override fun createUserDocument(
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+
+        val documentRef = db.collection("users").document(userUid())
+
+        documentRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (!documentSnapshot.exists()) {
+                    val user = hashMapOf<String, Any>()
+                    documentRef.set(user)
+                        .addOnSuccessListener {
+                            onSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            onFailure(e)
+                        }
+                }else {
+                    onSuccess()
+                }
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
 
 
     override fun getUserInfo(): Flow<UIState<UserInfo>> {
-    val userInfo = firestore
+        val userInfo = firestore
             .collection("users")
-            .document(auth.currentUser!!.uid)
+            .document(userUid())
 
         return callbackFlow {
             try {
@@ -68,7 +89,6 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
                         val username = snapshot?.getString("username") ?: currentUser()!!.email!!.substringBefore("@")
                         val image = snapshot?.getString("image") ?: "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-
                         trySend(UIState.Success(UserInfo(username,image)))
                     }
 
@@ -80,12 +100,17 @@ class AuthenticationRepositoryImpl @Inject constructor(
             } catch (e: Exception) {
                 trySend(UIState.Error(e.message ?: "Unknown error"))
             }
-        }
+         }
     }
 
     override fun isLoggedIn(): Boolean = auth.currentUser != null
 
-    override fun logout() = auth.signOut()
+    override fun logout() {
+        auth.signOut()
+        Log.i("HOME_SCREEN",FirebaseAuth.getInstance().currentUser?.uid.toString())
+        Log.i("HOME_SCREEN",currentUser()?.uid.toString())
+        Log.i("HOME_SCREEN",userUid())
+    }
 
 
     override suspend fun login(email: String, password: String): Flow<Response<AuthResult>> = flow {
@@ -119,6 +144,33 @@ class AuthenticationRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun reauthenticateAndChangePassword(
+        currentPassword: String,
+        newPassword: String,
+        onSuccess:() -> Unit,
+        onFailure:(Exception) -> Unit
+    ) {
+        val user = currentUser()
+        val email = user?.email
+
+        if(user != null && email != null){
+            val credential = EmailAuthProvider.getCredential(email,currentPassword)
+
+            user.reauthenticate(credential)
+                .addOnSuccessListener {
+                    user.updatePassword(newPassword)
+                        .addOnSuccessListener {
+                            onSuccess()
+                        }
+                        .addOnFailureListener {
+                            onFailure(it)
+                        }
+                }
+                .addOnFailureListener {
+                        onFailure(it)
+                }
+        }
+    }
 
 
     // GOOGLE AUTH

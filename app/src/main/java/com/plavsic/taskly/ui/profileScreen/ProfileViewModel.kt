@@ -1,9 +1,7 @@
 package com.plavsic.taskly.ui.profileScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.core.UIState
 import com.plavsic.taskly.domain.auth.repository.AuthenticationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,9 +20,6 @@ class ProfileViewModel @Inject constructor(
     private val _authProvider = MutableStateFlow(Provider.DEFAULT)
     val authProvider = _authProvider.asStateFlow()
 
-
-    private val _userPicture = MutableStateFlow(getUserProfilePicture())
-    val userPicture = _userPicture.asStateFlow()
 
     init {
         checkAuthProvider()
@@ -51,20 +46,36 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun getUserProfilePicture() :String {
-        var profilePic = ""
+    // ADD TRY CATCH AND OnSuccess and onError for both
+
+    fun updateUsername(username:String) {
         viewModelScope.launch {
-            profilePic = authenticationRepository.getProfilePicture()
+            authenticationRepository.updateUsername(username)
         }
-        return profilePic
     }
 
-    fun updateProfilePicture(url:String) {
+    fun updateProfilePicture(uri:String) {
         viewModelScope.launch {
-            authenticationRepository.updateProfilePhoto(url)
-            _userPicture.value = getUserProfilePicture()
+            authenticationRepository.updateProfilePicture(uri)
         }
     }
+
+    fun reauthenticateAndChangePassword(
+        currentPassword:String,
+        newPassword:String,
+        onSuccess:() -> Unit,
+        onFailure:(Exception) -> Unit
+    ){
+        viewModelScope.launch {
+            authenticationRepository.reauthenticateAndChangePassword(
+                currentPassword,
+                newPassword,
+                onSuccess,
+                onFailure
+            )
+        }
+    }
+
 
     fun logOut() {
         authenticationRepository.logout()

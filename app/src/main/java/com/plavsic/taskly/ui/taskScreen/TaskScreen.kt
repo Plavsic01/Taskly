@@ -1,6 +1,5 @@
 package com.plavsic.taskly.ui.taskScreen
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +20,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,7 +32,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -50,7 +50,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.plavsic.taskly.R
-import com.plavsic.taskly.core.UIState
 import com.plavsic.taskly.domain.category.model.CategoryIcon
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.ui.shared.calendar.CalendarDialog
@@ -92,6 +91,8 @@ fun TaskScreen(
     val selectedCategory by dialogViewModel.selectedCategory
     val selectedPriority by dialogViewModel.selectedPriority
 
+    val isCompleted = remember { mutableStateOf(editTask.value.isCompleted) }
+
     var isLoading by remember { mutableStateOf(false) }
 
     val updatedUiState = taskViewModel.updatedUiState.collectAsStateWithLifecycle()
@@ -131,7 +132,14 @@ fun TaskScreen(
         ) {
             TitleView(
                 task = editTask.value,
-                showEditDialog = showEditDialog
+                showEditDialog = showEditDialog,
+                isCompleted = isCompleted,
+                onCheckedChange = {
+                    isCompleted.value = it
+                    editTask.value = editTask.value.copy(
+                        isCompleted = isCompleted.value
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -327,8 +335,6 @@ private fun Content(
                     onClick = {
                         // Edit Task Button
                         onEdit()
-                        Log.i("EditedTask",task.toString())
-
                     },
                     text = "Edit Task",
                     containerColor = Purple,
@@ -345,19 +351,33 @@ private fun Content(
 @Composable
 private fun TitleView(
     task: Task,
-    showEditDialog:MutableState<Boolean>
+    showEditDialog:MutableState<Boolean>,
+    isCompleted:MutableState<Boolean>,
+    onCheckedChange:(Boolean) -> Unit
 ) {
 
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
+            Checkbox(
+                checked = isCompleted.value,
+                onCheckedChange = {
+                    onCheckedChange(it)
+                }
+            )
+
             Text(
                 text = task.title,
-                fontSize = 20.sp,
+                fontSize = 18.sp,
             )
 
             IconButton(
@@ -375,7 +395,7 @@ private fun TitleView(
         Text(
             text = task.description,
             fontSize = 16.sp,
-            color = LightWhite
+            color = LightWhite,
         )
     }
 }
@@ -530,6 +550,8 @@ fun DeleteTaskDialog(
 
 @Composable
 fun TaskDialog(
+    modifier: Modifier = Modifier,
+    height:Dp = 250.dp,
     showDialog:MutableState<Boolean>,
     title:String,
     content:@Composable ColumnScope.() -> Unit
@@ -542,14 +564,14 @@ fun TaskDialog(
         ) {
             Card(
                 modifier = Modifier
-                    .height(250.dp)
+                    .height(height)
                     .fillMaxWidth(),
                 colors = CardDefaults.cardColors(
                     containerColor = DarkerGray
                 )
             ) {
                 Column(
-                    modifier = Modifier
+                    modifier = modifier
                         .padding(all = 20.dp)
                 ) {
                     Text(

@@ -18,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,7 +58,6 @@ fun LoginScreen(
                 .padding(top = 20.dp),
             text = "Login",
             style = MaterialTheme.typography.titleLarge
-
         )
 
         Column {
@@ -123,10 +121,15 @@ fun LoginScreen(
             isEnabled.value = false
         },
         onSuccess = {
-            navController.navigate(NavigationGraph.MainScreen.route)
+            loginViewModel.createUserDocument(
+                onSuccess = {
+                    navController.navigate(NavigationGraph.MainScreen.route)
+                },
+                onFailure = {}
+            )
         },
         onError = {
-            Log.i("Error","Error Occurred")
+            Log.i("Error",it)
         }
 
     )
@@ -140,7 +143,7 @@ fun LoginState(
     flow: MutableSharedFlow<Response<AuthResult>>,
     onLoading: () -> Unit,
     onSuccess: () -> Unit,
-    onError: () -> Unit
+    onError: (String) -> Unit
 
 ) {
     val isLoading = remember { mutableStateOf(false) }
@@ -155,18 +158,18 @@ fun LoginState(
                     isLoading.value = true
                 }
 
-                is Response.Error -> {
-                    it.message
-                    Log.e("Login state -> ", it.message)
-                    isLoading.value = false
-                    onError()
-                }
-
                 is Response.Success -> {
                     Log.i("Login",it.data.user!!.email.toString())
                     Log.i("Login state -> ", "Success")
                     isLoading.value = false
                     onSuccess()
+                }
+
+                is Response.Error -> {
+                    it.message
+                    Log.e("Login state -> ", it.message)
+                    isLoading.value = false
+                    onError(it.message)
                 }
             }
         }

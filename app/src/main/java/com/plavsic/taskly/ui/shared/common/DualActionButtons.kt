@@ -12,7 +12,7 @@ import com.plavsic.taskly.ui.theme.Purple
 
 @Composable
 fun DualActionButtons(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onClickBtn1:() -> Unit,
     onClickBtn2:() -> Unit,
     enabled:Boolean = true,

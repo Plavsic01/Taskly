@@ -59,8 +59,10 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.kotlinx.coroutines.play.services)
 
+//    JWT
+    implementation(libs.java.jwt)
 
-    //Authentication with Credential Manager
+//   Authentication with Credential Manager
     implementation(libs.play.services.auth.v2120)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
@@ -81,7 +83,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     annotationProcessor(libs.androidx.room.compiler)
 
-    // optional - Kotlin Extensions and Coroutines support for Room
+//     optional - Kotlin Extensions and Coroutines support for Room
     implementation(libs.androidx.room.ktx)
 
     implementation(libs.androidx.lifecycle.runtime.ktx)

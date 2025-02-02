@@ -2,8 +2,8 @@ package com.plavsic.taskly.ui.categoryScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.plavsic.taskly.data.database.repository.CategoryRepository
 import com.plavsic.taskly.domain.category.model.Category
+import com.plavsic.taskly.domain.category.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn

@@ -1,4 +1,4 @@
-package com.plavsic.taskly.data.database.repository
+package com.plavsic.taskly.domain.category.repository
 
 import com.plavsic.taskly.domain.category.model.Category
 import kotlinx.coroutines.flow.Flow

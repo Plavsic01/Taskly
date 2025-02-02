@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface AuthenticationRepository {
 
-//    suspend fun getUsername() : String
 
     suspend fun login(email: String, password: String): Flow<Response<AuthResult>>
 
@@ -17,9 +16,14 @@ interface AuthenticationRepository {
 
     suspend fun resetPassword(email: String): Flow<Response<Void?>>
 
-    suspend fun updateProfilePhoto(photoUrl:String)
+    suspend fun updateUsername(username:String)
 
-    suspend fun getProfilePicture() : String
+    suspend fun updateProfilePicture(uri:String)
+
+    fun createUserDocument(
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    )
 
     fun userUid(): String
 
@@ -29,7 +33,14 @@ interface AuthenticationRepository {
 
     fun isLoggedIn(): Boolean
 
-    fun logout()
+    fun reauthenticateAndChangePassword(
+        currentPassword:String,
+        newPassword:String,
+        onSuccess:() -> Unit,
+        onFailure:(Exception) -> Unit
+    )
+
+     fun logout()
 
     // Google Auth
     suspend fun loginWithGoogle(idToken:String) : Flow<Response<AuthResult>>

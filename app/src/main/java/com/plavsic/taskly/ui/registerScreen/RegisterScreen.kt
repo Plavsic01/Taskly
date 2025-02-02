@@ -106,12 +106,12 @@ fun RegisterScreen(
                     containerColor = Purple,
                     contentColor = Color.White
                 )
-                SeparatorLine()
+//                SeparatorLine()
             }
 
-            AuthenticationButton(text = "Register with Google") { credential ->
-                registerViewModel.registerWithGoogle(credential)
-            }
+//            AuthenticationButton(text = "Register with Google") { credential ->
+//                registerViewModel.registerWithGoogle(credential)
+//            }
         }
 
 
@@ -132,15 +132,19 @@ fun RegisterScreen(
 
     RegisterState(
         flow = registerViewModel.registerFlow,
-        viewModel = registerViewModel,
         onLoading = {
             isEnabled.value = false
         },
         onSuccess = {
-            navController.navigate(NavigationGraph.MainScreen.route)
+            registerViewModel.createUserDocument(
+                onSuccess = {
+                    navController.navigate(NavigationGraph.MainScreen.route)
+                },
+                onFailure = {}
+            )
         },
         onError = {
-            Log.i("Error","Error Occurred")
+            Log.i("Error",it)
         }
 
     )
@@ -151,10 +155,9 @@ fun RegisterScreen(
 @Composable
 fun RegisterState(
     flow: MutableSharedFlow<Response<AuthResult>>,
-    viewModel: RegisterViewModel,
     onLoading: () -> Unit,
     onSuccess: () -> Unit,
-    onError: () -> Unit
+    onError: (String) -> Unit
 ) {
     val isLoading = remember { mutableStateOf(false) }
     if (isLoading.value) {
@@ -168,18 +171,19 @@ fun RegisterState(
                     isLoading.value = true
                 }
 
-                is Response.Error -> {
-                    Log.e("Register state -> ", it.message)
-                    isLoading.value = false
-                    onError()
-                }
-
                 is Response.Success -> {
                     Log.i("Register state -> ", "Success")
                     isLoading.value = false
-                    viewModel.createUserProfilePicture()
                     onSuccess()
                 }
+
+                is Response.Error -> {
+                    Log.e("Register state -> ", it.message)
+                    isLoading.value = false
+                    onError(it.message)
+                }
+
+
             }
         }
     }

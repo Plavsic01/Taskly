@@ -87,12 +87,3 @@ fun StartScreen(navController: NavHostController) {
     }
 }
 
-
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun StartScreenPreview() {
-    val navController = rememberNavController()
-    StartScreen(navController)
-}

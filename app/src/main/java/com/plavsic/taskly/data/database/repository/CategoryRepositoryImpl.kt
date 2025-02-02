@@ -1,10 +1,10 @@
-package com.plavsic.taskly.domain.category.repository
+package com.plavsic.taskly.data.database.repository
 
 
 import com.plavsic.taskly.data.database.dao.CategoryDAO
 import com.plavsic.taskly.data.database.entities.CategoryEntity
-import com.plavsic.taskly.data.database.repository.CategoryRepository
 import com.plavsic.taskly.domain.category.model.Category
+import com.plavsic.taskly.domain.category.repository.CategoryRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

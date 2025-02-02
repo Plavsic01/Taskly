@@ -86,7 +86,6 @@ fun CalendarView(
             month = currentMonth,
             chosenDate = chosenDate,
             onSelectedDate = {
-                Log.i("IZABRAN_DATUM_KLIK",it.toString())
                 selectedDate = it
                 onSelectedDate(it)
             }
@@ -148,7 +147,8 @@ fun CalendarHeader(
 fun CalendarGrid(
     chosenDate: LocalDate?,
     month: YearMonth,
-    onSelectedDate:(LocalDate) -> Unit
+    onSelectedDate:(LocalDate) -> Unit,
+    content:@Composable ((List<LocalDate>) -> Unit)? = null
 ){
     // how many days are in this month
     val monthLength = month.lengthOfMonth()
@@ -165,24 +165,30 @@ fun CalendarGrid(
     val selectedDate:MutableState<LocalDate?> = remember { mutableStateOf(chosenDate) }
 
 
-    LazyVerticalGrid(
-        contentPadding = PaddingValues(10.dp),
-        columns = GridCells.Fixed(7),
-    ) {
-        item(span = { GridItemSpan(7) }) {
-            DaysIWeek()
+    if(content == null){
+        LazyVerticalGrid(
+            contentPadding = PaddingValues(10.dp),
+            columns = GridCells.Fixed(7),
+        ) {
+            item(span = { GridItemSpan(7) }) {
+                DaysIWeek()
+            }
+            items(allDates){date ->
+                DayItem(
+                    date = date,
+                    selectedDate = selectedDate.value,
+                    onSelectedDate = {
+                        onSelectedDate(date!!)
+                        selectedDate.value = date
+                    }
+                )
+            }
         }
-        items(allDates){date ->
-            DayItem(
-                date = date,
-                selectedDate = selectedDate.value,
-                onSelectedDate = {
-                    onSelectedDate(date!!)
-                    selectedDate.value = date
-                }
-            )
-        }
+    }else{
+        content(dates)
     }
+
+
 }
 
 @Composable
@@ -219,17 +225,6 @@ fun DayItem(
 
 @Composable
 fun DaysIWeek(){
-
-//    val days = listOf(
-//        DaysInWeek.Monday,
-//        DaysInWeek.Tuesday,
-//        DaysInWeek.Wednesday,
-//        DaysInWeek.Thursday,
-//        DaysInWeek.Friday,
-//        DaysInWeek.Saturday,
-//        DaysInWeek.Sunday,
-//    )
-
     val days = listOf(
         DaysInWeek.MONDAY,
         DaysInWeek.TUESDAY,
@@ -282,15 +277,6 @@ enum class DaysInWeek(val day:String,val color:Color){
     SUNDAY(day = "SUN", color = Color.Red);
 }
 
-//sealed class DaysInWeek(val name:String,val color:Color){
-//    data object Monday : DaysInWeek(name = "MON", color = Color.White)
-//    data object Tuesday : DaysInWeek(name = "TUE", color = Color.White)
-//    data object Wednesday : DaysInWeek(name = "WED", color = Color.White)
-//    data object Thursday : DaysInWeek(name = "THU  ", color = Color.White)
-//    data object Friday : DaysInWeek(name = "FRI  ", color = Color.White)
-//    data object Saturday : DaysInWeek(name = "SAT", color = Color.Red)
-//    data object Sunday : DaysInWeek(name = "SUN", color = Color.Red)
-//}
 
 
 

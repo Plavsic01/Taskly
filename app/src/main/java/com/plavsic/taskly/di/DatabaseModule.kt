@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.plavsic.taskly.data.database.CategoryDatabase
 import com.plavsic.taskly.data.database.dao.CategoryDAO
-import com.plavsic.taskly.data.database.repository.CategoryRepository
-import com.plavsic.taskly.domain.category.repository.CategoryRepositoryImpl
+import com.plavsic.taskly.data.database.repository.CategoryRepositoryImpl
+import com.plavsic.taskly.domain.category.repository.CategoryRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

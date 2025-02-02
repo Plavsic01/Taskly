@@ -2,6 +2,7 @@ package com.plavsic.taskly.data.task.repository
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.domain.task.model.Task
@@ -22,18 +23,18 @@ class TaskRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : TaskRepository {
 
-    private val userId = auth.currentUser!!.uid
-
-    private val tasksCollection = firestore
-        .collection("users")
-        .document(userId)
-        .collection("tasks")
-
 
     override fun getTasks(): Flow<Response<List<Task>>> {
+
+//        val tasksCollection = firestore
+//            .collection("users")
+//            .document(auth.currentUser!!.uid)
+//            .collection("tasks")
+
+
         return callbackFlow {
             try {
-                val listenerRegistration = tasksCollection
+                val listenerRegistration = getCollection()
                     .addSnapshotListener { snapshot, exception ->
                         if (exception != null) {
                             trySend(Response.Error(exception.message ?: "Unknown error"))
@@ -84,8 +85,12 @@ class TaskRepositoryImpl @Inject constructor(
                 "isCompleted" to task.isCompleted,
             )
 
+//        val tasksCollection = firestore
+//            .collection("users")
+//            .document(auth.currentUser!!.uid)
+//            .collection("tasks")
 
-            tasksCollection
+            getCollection()
                 .document(uuid)
                 .set(taskMap)
                 .await()
@@ -104,23 +109,39 @@ class TaskRepositoryImpl @Inject constructor(
             "category" to task.category,
             "isCompleted" to task.isCompleted,
         )
+//        val tasksCollection = firestore
+//            .collection("users")
+//            .document(auth.currentUser!!.uid)
+//            .collection("tasks")
 
-        tasksCollection
+        getCollection()
             .document(task.taskId)
             .update(taskMap)
             .await()
 
         Log.i("Firestore","Document updated successfully")
-
     }
 
     override suspend fun deleteTask(taskId:String) {
-        tasksCollection
+//        val tasksCollection = firestore
+//            .collection("users")
+//            .document(auth.currentUser!!.uid)
+//            .collection("tasks")
+        getCollection()
             .document(taskId)
             .delete()
             .await()
     }
+
+    private fun getCollection() :CollectionReference {
+        return firestore
+            .collection("users")
+            .document(auth.currentUser!!.uid)
+            .collection("tasks")
+    }
 }
+
+
 
 
 
