@@ -15,6 +15,12 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
 
@@ -25,13 +31,6 @@ class TaskRepositoryImpl @Inject constructor(
 
 
     override fun getTasks(): Flow<Response<List<Task>>> {
-
-//        val tasksCollection = firestore
-//            .collection("users")
-//            .document(auth.currentUser!!.uid)
-//            .collection("tasks")
-
-
         return callbackFlow {
             try {
                 val listenerRegistration = getCollection()
@@ -44,16 +43,33 @@ class TaskRepositoryImpl @Inject constructor(
                             val taskId = it.getString("taskId") ?: ""
                             val title = it.getString("title") ?: ""
                             val description = it.getString("description") ?: ""
-                            val date = it.get("date").toString().toLocalDate()
+//                            val date = it.get("date").toString().toLocalDate()
+                            val dateTimestamp = it.getDate("dateTime")
                             val priority = it.get("priority") as? Map<*, *>
                             val category = it.get("category") as? Map<*,*>
                             val isCompleted = it.getBoolean("isCompleted") ?: false
+
+
+                            val dateTime = dateTimestamp?.toInstant()
+                                ?.atZone(ZoneId.systemDefault())
+                                ?.toLocalDateTime()
+
+//                            Log.i("DATE_TIMESTAMP",dateTimestamp.toString())
+
+//                            val formatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH)
+//
+//                            val formattedTime = dateTime?.format(formatter)
+//
+//                            Log.i("DATE_TIMESTAMP",dateTime.toString())
+//
+//                            Log.i("DATE_TIMESTAMP",formattedTime.toString())
 
                             Task(
                                 taskId,
                                 title,
                                 description,
-                                date,priority?.toPriority(),
+                                dateTime,
+                                priority?.toPriority(),
                                 category?.toCategory(),
                                 isCompleted
                             )
@@ -79,16 +95,11 @@ class TaskRepositoryImpl @Inject constructor(
                 "taskId" to uuid,
                 "title" to task.title,
                 "description" to task.description,
-                "date" to task.date?.toFirebaseString(),
+                "dateTime" to Date.from(task.date?.atZone(ZoneId.systemDefault())?.toInstant()),
                 "priority" to task.priority,
                 "category" to task.category,
                 "isCompleted" to task.isCompleted,
             )
-
-//        val tasksCollection = firestore
-//            .collection("users")
-//            .document(auth.currentUser!!.uid)
-//            .collection("tasks")
 
             getCollection()
                 .document(uuid)
@@ -99,20 +110,18 @@ class TaskRepositoryImpl @Inject constructor(
 
     }
 
+    // TODO: FIX DATE
+
     override suspend fun updateTask(task: Task) {
         val taskMap = hashMapOf(
             "taskId" to task.taskId,
             "title" to task.title,
             "description" to task.description,
-            "date" to task.date?.toFirebaseString(),
+            "dateTime" to Date.from(task.date?.atZone(ZoneId.systemDefault())?.toInstant()),
             "priority" to task.priority,
             "category" to task.category,
             "isCompleted" to task.isCompleted,
         )
-//        val tasksCollection = firestore
-//            .collection("users")
-//            .document(auth.currentUser!!.uid)
-//            .collection("tasks")
 
         getCollection()
             .document(task.taskId)
@@ -123,10 +132,7 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteTask(taskId:String) {
-//        val tasksCollection = firestore
-//            .collection("users")
-//            .document(auth.currentUser!!.uid)
-//            .collection("tasks")
+
         getCollection()
             .document(taskId)
             .delete()

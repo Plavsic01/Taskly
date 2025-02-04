@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
 
+val WhiteWithOpacity10 = Color(0xFFFFFFFF).copy(alpha = 0.10F)
 val WhiteWithOpacity21 = Color(0xFFFFFFFF).copy(alpha = 0.21F)
 val WhiteWithOpacity67 = Color(0xFFFFFFFF).copy(alpha = 0.67F)
 val WhiteWithOpacity87 = Color(0xFFFFFFFF).copy(alpha = 0.87F)

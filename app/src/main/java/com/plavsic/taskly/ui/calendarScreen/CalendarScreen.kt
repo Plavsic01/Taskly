@@ -146,7 +146,7 @@ fun CalendarScreen(
                                         )
 
                                         if(tasksState.any { task ->
-                                            task.date == date
+                                            task.date?.toLocalDate() == date
                                         }){
                                             Box(
                                                 modifier = Modifier
@@ -198,8 +198,8 @@ fun CalendarScreen(
 
 
                 TasksLazyColumn(
-                    tasks = if(isTodayClicked) tasksState.filter { it.date == selectedDate } else
-                        tasksState.filter { it.date == selectedDate && it.isCompleted },
+                    tasks = if(isTodayClicked) tasksState.filter { it.date?.toLocalDate() == selectedDate } else
+                        tasksState.filter { it.date?.toLocalDate() == selectedDate && it.isCompleted },
                     min = 100.dp,
                     max = 400.dp,
                     onClick = {task ->

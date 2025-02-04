@@ -14,7 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,17 +25,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.plavsic.taskly.R
-import com.plavsic.taskly.core.UIState
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.ui.shared.calendar.CalendarDialog
+import com.plavsic.taskly.ui.shared.calendar.TimeDialog
 import com.plavsic.taskly.ui.shared.category.CategoryDialog
 import com.plavsic.taskly.ui.shared.common.TasklyTextField
 import com.plavsic.taskly.ui.theme.Black
 import com.plavsic.taskly.ui.theme.DarkerGray
+import java.time.LocalTime
 
 @Composable
 fun AddTaskDialog(
@@ -47,9 +46,11 @@ fun AddTaskDialog(
 ) {
     val showCalendarDialog = remember { mutableStateOf(false) }
     val showTaskPriorityDialog = remember { mutableStateOf(false) }
+    val showtimeDialog = remember { mutableStateOf(false) }
 
     val taskTitle = rememberSaveable { mutableStateOf("") }
     val taskDescription = rememberSaveable { mutableStateOf("") }
+    val selectedTime = rememberSaveable { mutableStateOf<LocalTime?>(null) }
 
     val selectedDate by dialogViewModel.selectedDate
     val selectedCategory by dialogViewModel.selectedCategory
@@ -126,6 +127,17 @@ fun AddTaskDialog(
 
                             IconButton(
                                 onClick = {
+                                    showtimeDialog.value = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.timer),
+                                    contentDescription = "Time",
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
                                     dialogViewModel.showCategoryDialog()
                                 }
                             ) {
@@ -152,12 +164,12 @@ fun AddTaskDialog(
                             enabled = taskTitle.value.isNotEmpty() &&
                                     taskDescription.value.isNotEmpty()
                                     && !isLoading
-                                    && checkIfStatesAreNull(selectedDate,selectedCategory,selectedPriority),
+                                    && checkIfStatesAreNull(selectedDate,selectedCategory,selectedPriority,selectedTime),
                             onClick = {
                                 val task = Task(
                                     title = taskTitle.value,
                                     description = taskDescription.value,
-                                    date = selectedDate,
+                                    date = selectedDate?.atTime(selectedTime.value!!.hour,selectedTime.value!!.minute),
                                     priority = selectedPriority,
                                     category = selectedCategory,
                                     isCompleted = false,
@@ -168,6 +180,7 @@ fun AddTaskDialog(
                                 // SET TO DEFAULT VALUES AFTER ADDING TASK
                                 taskTitle.value = ""
                                 taskDescription.value = ""
+                                selectedTime.value = null
                                 dialogViewModel.clearSelectedDate()
                                 dialogViewModel.clearSelectedPriority()
                                 dialogViewModel.clearSelectedCategory()
@@ -182,7 +195,7 @@ fun AddTaskDialog(
                                     &&
                                     taskDescription.value.isNotEmpty()
                                     && !isLoading
-                                    && checkIfStatesAreNull(selectedDate,selectedCategory,selectedPriority))
+                                    && checkIfStatesAreNull(selectedDate,selectedCategory,selectedPriority,selectedTime))
                                     Color(0xFF8687E7) else Black
                             )
                         }
@@ -196,6 +209,13 @@ fun AddTaskDialog(
         dialogViewModel = dialogViewModel,
     )
 
+    TimeDialog(
+        showDialog = showtimeDialog,
+        onSubmit = {
+            selectedTime.value = it
+        }
+    )
+
     CategoryDialog(
         navController = navController,
         dialogViewModel = dialogViewModel
@@ -205,6 +225,7 @@ fun AddTaskDialog(
         showDialog = showTaskPriorityDialog,
         dialogViewModel = dialogViewModel,
     )
+
 
     TaskState(
         state = uiState,

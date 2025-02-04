@@ -69,7 +69,6 @@ import com.plavsic.taskly.ui.theme.LightWhite
 import com.plavsic.taskly.ui.theme.Purple
 import com.plavsic.taskly.ui.theme.WhiteWithOpacity21
 
-// Screen to show Task and to edit it if needed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -173,13 +172,15 @@ fun TaskScreen(
                 task = editTask
             )
 
+            // TODO: .ToLocalDate nad editDate probati
+
             CalendarDialog(
                 showDialog = showCalendarDialog,
-                editDate = editTask.value.date,
+                editDate = editTask.value.date?.toLocalDate(),
                 isForEdit = true,
                 onEdit = {
                     editTask.value = editTask.value.copy(
-                        date = selectedDate
+                        date = selectedDate?.atStartOfDay()
                     )
                 },
                 dialogViewModel = dialogViewModel
@@ -245,13 +246,12 @@ private fun Content(
             .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-
         Column {
             ItemRow(
                 icon = R.drawable.calendar_outline,
                 contentDescription = "Calendar",
                 text = " Task Time:",
-                btnText = task.date.toString(),
+                btnText = task.date?.toLocalDate().toString(),
                 onClick = {
                     onClickCalendar()
                 },
@@ -591,27 +591,3 @@ fun TaskDialog(
         }
     }
 }
-
-
-//@Composable
-//fun UpdateTaskState(
-//    state:State<UIState<Unit>>,
-//    onLoading:() -> Unit,
-//    onSuccess:() -> Unit,
-//    onError:() -> Unit
-//) {
-//    when(state.value){
-//        is UIState.Idle -> {}
-//
-//        is UIState.Loading -> {
-//            onLoading()
-//        }
-//        is UIState.Success -> {
-//            onSuccess()
-//        }
-//
-//        is UIState.Error -> {
-//            onError()
-//        }
-//    }
-//}

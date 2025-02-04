@@ -120,7 +120,7 @@ fun HomeScreen(
                 },
                 onSuccess = { list ->
                     if(list.isNotEmpty() && list.any { task ->
-                            task.date == LocalDate.now()
+                            task.date?.toLocalDate() == LocalDate.now()
                         }){
                         Column(
                             modifier = Modifier
@@ -154,7 +154,7 @@ fun HomeScreen(
 
                             TasksLazyColumn(
                                 tasks = list.filter { task ->
-                                    task.date == LocalDate.now() && !task.isCompleted
+                                    task.date?.toLocalDate() == LocalDate.now() && !task.isCompleted
                                 },
                                 min = 0.dp,
                                 max = 300.dp,
@@ -188,7 +188,7 @@ fun HomeScreen(
 
                             TasksLazyColumn(
                                 tasks = list.filter { task ->
-                                    task.isCompleted && task.date == LocalDate.now()
+                                    task.isCompleted && task.date?.toLocalDate() == LocalDate.now()
                                 },
                                 min = 100.dp,
                                 max = 200.dp,

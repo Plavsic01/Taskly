@@ -55,7 +55,7 @@ fun TaskView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = task.date.toString(),
+                text = task.date?.toLocalDate().toString(),
                 fontSize = 14.sp
             )
 
