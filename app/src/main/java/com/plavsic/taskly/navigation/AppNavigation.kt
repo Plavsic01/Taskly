@@ -1,26 +1,22 @@
 package com.plavsic.taskly.navigation
 
-import android.util.Log
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.toRoute
-import com.google.gson.Gson
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.ui.categoryScreen.CategoryScreen
 import com.plavsic.taskly.ui.loginScreen.LoginScreen
 import com.plavsic.taskly.ui.onboardingScreen.OnboardingScreen
 import com.plavsic.taskly.ui.registerScreen.RegisterScreen
 import com.plavsic.taskly.ui.shared.task.DialogViewModel
-import com.plavsic.taskly.ui.shared.task.TaskViewModel
 import com.plavsic.taskly.ui.startScreen.StartScreen
 import com.plavsic.taskly.ui.taskScreen.TaskScreen
+import com.plavsic.taskly.utils.PreferenceUtils
 import com.plavsic.taskly.utils.gson.GsonInstance
 
 
@@ -31,19 +27,19 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
 
+    val context = LocalContext.current
+
+    val startDestination = if(navigationViewModel.isLoggedIn.value && PreferenceUtils.hasUserCompletedOnboarding(context)) {
+        NavigationGraph.MainScreen.route
+    }else if(!PreferenceUtils.hasUserCompletedOnboarding(context)){
+        NavigationGraph.OnboardingScreen.route
+    }else {
+        NavigationGraph.StartScreen.route
+    }
 
     NavHost(
         navController = navController,
-//        enterTransition = {
-//            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700))
-//        },
-//        exitTransition = {
-//            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, tween(700))
-//        },
-        startDestination = if(navigationViewModel.isLoggedIn.value)
-            NavigationGraph.MainScreen.route
-        else
-            NavigationGraph.OnboardingScreen.route
+        startDestination = startDestination
     ) {
         composable(NavigationGraph.OnboardingScreen.route){
             OnboardingScreen(navController = navController)

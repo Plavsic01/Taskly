@@ -28,7 +28,7 @@ object DatabaseModule {
             "categories-db"
         )
             // DO MIGRATION
-//            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration()
             .createFromAsset("database/categories.db")
             .build()
     }

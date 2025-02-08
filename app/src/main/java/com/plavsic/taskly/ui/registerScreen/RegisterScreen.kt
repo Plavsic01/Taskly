@@ -106,12 +106,7 @@ fun RegisterScreen(
                     containerColor = Purple,
                     contentColor = Color.White
                 )
-//                SeparatorLine()
             }
-
-//            AuthenticationButton(text = "Register with Google") { credential ->
-//                registerViewModel.registerWithGoogle(credential)
-//            }
         }
 
 
@@ -138,7 +133,10 @@ fun RegisterScreen(
         onSuccess = {
             registerViewModel.createUserDocument(
                 onSuccess = {
-                    navController.navigate(NavigationGraph.MainScreen.route)
+                    navController.navigate(NavigationGraph.MainScreen.route) {
+                        launchSingleTop = true
+                        popUpTo(NavigationGraph.StartScreen.route) { inclusive = true }
+                    }
                 },
                 onFailure = {}
             )

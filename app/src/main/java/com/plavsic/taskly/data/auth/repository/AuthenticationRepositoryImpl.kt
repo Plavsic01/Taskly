@@ -107,9 +107,6 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     override fun logout() {
         auth.signOut()
-        Log.i("HOME_SCREEN",FirebaseAuth.getInstance().currentUser?.uid.toString())
-        Log.i("HOME_SCREEN",currentUser()?.uid.toString())
-        Log.i("HOME_SCREEN",userUid())
     }
 
 

@@ -1,6 +1,14 @@
 package com.plavsic.taskly.ui.shared.task
 
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +16,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -21,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.plavsic.taskly.R
 import com.plavsic.taskly.domain.task.model.Task
+import com.plavsic.taskly.notification.TaskNotification
 import com.plavsic.taskly.ui.shared.calendar.CalendarDialog
 import com.plavsic.taskly.ui.shared.calendar.TimeDialog
 import com.plavsic.taskly.ui.shared.category.CategoryDialog
@@ -112,53 +124,32 @@ fun AddTaskDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row {
+                        Row(
+                        ) {
+                            TaskIcon(
+                                image = R.drawable.calendar_outline,
+                                contentDescription = "Calendar",
+                                onClick = { showCalendarDialog.value = true }
+                            )
 
-                            IconButton(
-                                onClick = {
-                                    showCalendarDialog.value = true
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.calendar_outline),
-                                    contentDescription = "Calendar",
-                                )
-                            }
+                            TaskIcon(
+                                image = R.drawable.timer,
+                                contentDescription = "Time",
+                                onClick = { showtimeDialog.value = true }
+                            )
 
-                            IconButton(
-                                onClick = {
-                                    showtimeDialog.value = true
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.timer),
-                                    contentDescription = "Time",
-                                )
-                            }
+                            TaskIcon(
+                                image = R.drawable.tag,
+                                contentDescription = "Tag",
+                                onClick = { dialogViewModel.showCategoryDialog() }
+                            )
 
-                            IconButton(
-                                onClick = {
-                                    dialogViewModel.showCategoryDialog()
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.tag),
-                                    contentDescription = "Tag",
-                                )
-                            }
-
-                            IconButton(
-                                onClick = {
-                                    showTaskPriorityDialog.value = true
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.flag),
-                                    contentDescription = "Flag",
-                                )
-                            }
+                            TaskIcon(
+                                image = R.drawable.flag,
+                                contentDescription = "Flag",
+                                onClick = { showTaskPriorityDialog.value = true }
+                            )
                         }
-
 
                         IconButton(
                             enabled = taskTitle.value.isNotEmpty() &&
@@ -240,37 +231,31 @@ fun AddTaskDialog(
 }
 
 
+@Composable
+fun TaskIcon(
+    image:Int,
+    contentDescription:String,
+    onClick:() -> Unit
+) {
+    IconButton(
+        modifier = Modifier
+            .width(40.dp),
+        onClick = {
+           onClick()
+        }
+    ) {
+        Icon(
+            painter = painterResource(image),
+            contentDescription = contentDescription
+        )
+    }
+}
+
+
 
 fun checkIfStatesAreNull(vararg states:Any?) : Boolean {
     return states.all { state ->
         state != null
     }
 }
-
-//@Composable
-//fun AddTaskState(
-//    state:State<UIState<Unit>>,
-//    onLoading:() -> Unit,
-//    onSuccess:() -> Unit,
-//    onError:() -> Unit
-//) {
-//    when(state.value){
-//        is UIState.Idle -> {}
-//
-//        is UIState.Loading -> {
-//            onLoading()
-//            Log.i("successData","LOADING")
-//        }
-//        is UIState.Success -> {
-//            onSuccess()
-//            Log.i("successData","USPESNO KREIRAN")
-//        }
-//
-//        is UIState.Error -> {
-//            onError()
-//        }
-//    }
-//}
-
-
 

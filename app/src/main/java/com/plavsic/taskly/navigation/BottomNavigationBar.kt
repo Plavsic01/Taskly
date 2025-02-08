@@ -1,7 +1,6 @@
 package com.plavsic.taskly.navigation
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +40,7 @@ import androidx.navigation.compose.rememberNavController
 import com.plavsic.taskly.R
 import com.plavsic.taskly.ui.calendarScreen.CalendarScreen
 import com.plavsic.taskly.ui.homeScreen.HomeScreen
+import com.plavsic.taskly.ui.notificationScreen.NotificationScreen
 import com.plavsic.taskly.ui.profileScreen.ProfileScreen
 import com.plavsic.taskly.ui.profileScreen.ProfileViewModel
 import com.plavsic.taskly.ui.shared.task.AddTaskDialog
@@ -61,7 +61,7 @@ fun BottomNavigationBar(
     val items = listOf(
         BottomNavigationItem.Home,
         BottomNavigationItem.Calendar,
-        BottomNavigationItem.Focus,
+        BottomNavigationItem.Alert,
         BottomNavigationItem.Profile
     )
 
@@ -136,7 +136,7 @@ fun TasklyBottomNavigationBar(
     when (currentRoute) {
         "home" -> selectedNavItem.intValue = 0
         "calendar" -> selectedNavItem.intValue = 1
-        "focus" -> selectedNavItem.intValue = 2
+        "alert" -> selectedNavItem.intValue = 2
         "profile" -> selectedNavItem.intValue = 3
     }
 
@@ -219,9 +219,9 @@ private fun TasklyBottomNavItemImpl(
                     launchSingleTop = true
                     popUpTo(BottomNavigationItem.Calendar.route) { inclusive = true }
                 }
-                2 -> navController.navigate(BottomNavigationItem.Focus.route){
+                2 -> navController.navigate(BottomNavigationItem.Alert.route){
                     launchSingleTop = true
-                    popUpTo(BottomNavigationItem.Focus.route) { inclusive = true }
+                    popUpTo(BottomNavigationItem.Alert.route) { inclusive = true }
                 }
                 3 -> navController.navigate(BottomNavigationItem.Profile.route) {
                     launchSingleTop = true
@@ -264,7 +264,7 @@ fun NavigationHost(
     navController: NavHostController,
     bottomNavController:NavHostController,
     taskViewModel:TaskViewModel,
-    profileViewModel: ProfileViewModel = hiltViewModel()
+    profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     NavHost(
         navController = bottomNavController,
@@ -277,10 +277,16 @@ fun NavigationHost(
         ) }
         composable(BottomNavigationItem.Calendar.route) {
             CalendarScreen(
+                navController = navController,
+                taskViewModel = taskViewModel
+
+            )
+        }
+        composable(BottomNavigationItem.Alert.route) {
+            NotificationScreen(
                 taskViewModel = taskViewModel
             )
         }
-        composable(BottomNavigationItem.Focus.route) {  }
         composable(BottomNavigationItem.Profile.route) {
             ProfileScreen(
                 navController = navController,
@@ -296,6 +302,6 @@ sealed class BottomNavigationItem(val route: String,
                                   val label: String) {
     data object Home : BottomNavigationItem("home",R.drawable.home_outline, R.drawable.home, "Home")
     data object Calendar : BottomNavigationItem("calendar",R.drawable.calendar_outline, R.drawable.calendar, "Calendar")
-    data object Focus : BottomNavigationItem("focus",R.drawable.clock_outline,R.drawable.clock,"Focus")
+    data object Alert : BottomNavigationItem("alert",R.drawable.clock_outline,R.drawable.clock,"Alerts")
     data object Profile : BottomNavigationItem("profile",R.drawable.user_outline,R.drawable.user_outline, "Profile")
 }

@@ -44,6 +44,7 @@ import java.util.Locale
 @Composable
 fun TimeDialog(
     showDialog:MutableState<Boolean>,
+    title: String = "Choose Time",
     onSubmit:(LocalTime) -> Unit
 ) {
     // Hours
@@ -72,7 +73,7 @@ fun TimeDialog(
 
     TaskDialog(
         showDialog = showDialog,
-        title = "Choose Time",
+        title = title,
         height = 270.dp,
         content = {
 
@@ -133,7 +134,7 @@ fun TimeDialog(
                 DualActionButtons(
                     modifier = Modifier.weight(1f),
                     btn1Text = "Cancel",
-                    btn2Text = "Save",
+                    btn2Text = if(title == "Choose Time") "Save" else "Set Alert",
                     onClickBtn1 = {
                         showDialog.value = false
                     },

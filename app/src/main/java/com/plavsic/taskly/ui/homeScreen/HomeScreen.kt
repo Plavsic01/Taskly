@@ -3,12 +3,13 @@ package com.plavsic.taskly.ui.homeScreen
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -77,7 +78,7 @@ fun HomeScreen(
     Scaffold(
         modifier = Modifier
             .systemBarsPadding()
-            .padding(horizontal = 30.dp, vertical = 10.dp),
+            .padding(horizontal = 15.dp, vertical = 10.dp),
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -246,12 +247,13 @@ fun TasksLazyColumn(
     tasks: List<Task>,
     min:Dp,
     max:Dp,
+    isForAlerts:Boolean = false,
     onClick:(Task) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
             .heightIn(min = min,max = max),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(vertical = 15.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(tasks) { task ->
@@ -259,7 +261,8 @@ fun TasksLazyColumn(
                 modifier = Modifier.clickable {
                     onClick(task)
                 },
-                task = task
+                task = task,
+                isForAlerts = isForAlerts,
             )
         }
     }

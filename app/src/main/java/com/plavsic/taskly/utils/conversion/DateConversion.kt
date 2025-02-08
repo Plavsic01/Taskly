@@ -1,16 +1,28 @@
 package com.plavsic.taskly.utils.conversion
 
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
-fun String.toLocalDate() : LocalDate {
-    return LocalDate.parse(this)
+fun LocalDateTime.formatDateTime() : String {
+    val formatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH)
+    val formattedTime = this.format(formatter)
+    return formattedTime
 }
 
-fun LocalDate.toFirebaseString() : String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    return this.format(formatter)
+fun LocalDate.formatDate() : String {
+    val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
+    val formattedTime = this.format(formatter)
+    return formattedTime
+}
+
+fun LocalTime.formatTime() : String {
+    val formatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH)
+    val formattedTime = this.format(formatter)
+    return formattedTime
 }
 
 fun Int.to24HourFormat(isPM: Boolean): Int {

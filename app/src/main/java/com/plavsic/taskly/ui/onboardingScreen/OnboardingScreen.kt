@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +36,7 @@ import androidx.navigation.NavHostController
 import com.plavsic.taskly.R
 import com.plavsic.taskly.navigation.NavigationGraph
 import com.plavsic.taskly.ui.theme.Purple
+import com.plavsic.taskly.utils.PreferenceUtils
 import kotlinx.coroutines.launch
 
 
@@ -118,6 +120,7 @@ private fun NavigationView(
     navController: NavHostController,
     state: PagerState
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     Row(
@@ -150,6 +153,7 @@ private fun NavigationView(
             onClick = {
                 // This means its on GET STARTED (Last page of onboarding pages)
                 if(state.currentPage == onboardingData.size - 1){
+                    PreferenceUtils.saveOnboardingStatus(context = context, isCompleted = true)
                     navController.navigate(NavigationGraph.StartScreen.route)
                 }
 
@@ -210,14 +214,3 @@ val onboardingData = listOf(
                 "your tasks into separate categories"),
 )
 
-
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun OnboardingScreenPreview() {
-    val pageState = rememberPagerState(pageCount = {
-        3
-    })
-//    OnboardingView(state = pageState, currPage = 0)
-}

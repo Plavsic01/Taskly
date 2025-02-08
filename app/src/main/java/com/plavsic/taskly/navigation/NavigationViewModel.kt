@@ -18,7 +18,6 @@ class NavigationViewModel @Inject constructor(
     val isLoggedIn = _isLoggedIn
 
     init {
-//        FirebaseAuth.getInstance().signOut()
         isLoggedIn()
     }
 

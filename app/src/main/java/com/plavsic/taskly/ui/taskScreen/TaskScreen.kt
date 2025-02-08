@@ -53,6 +53,7 @@ import com.plavsic.taskly.R
 import com.plavsic.taskly.domain.category.model.CategoryIcon
 import com.plavsic.taskly.domain.task.model.Task
 import com.plavsic.taskly.ui.shared.calendar.CalendarDialog
+import com.plavsic.taskly.ui.shared.calendar.TimeDialog
 import com.plavsic.taskly.ui.shared.category.CategoryDialog
 import com.plavsic.taskly.ui.shared.common.Divider
 import com.plavsic.taskly.ui.shared.common.DualActionButtons
@@ -68,6 +69,8 @@ import com.plavsic.taskly.ui.theme.LightBlack
 import com.plavsic.taskly.ui.theme.LightWhite
 import com.plavsic.taskly.ui.theme.Purple
 import com.plavsic.taskly.ui.theme.WhiteWithOpacity21
+import com.plavsic.taskly.utils.conversion.formatDate
+import com.plavsic.taskly.utils.conversion.formatDateTime
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,6 +87,7 @@ fun TaskScreen(
     val showDeleteDialog = remember { mutableStateOf(false) }
     val showPriorityDialog = remember { mutableStateOf(false) }
     val showCalendarDialog = remember { mutableStateOf(false) }
+    val showTimeDialog = remember { mutableStateOf(false) }
 
 
     val selectedDate by dialogViewModel.selectedDate
@@ -149,6 +153,9 @@ fun TaskScreen(
                 onClickCalendar = {
                     showCalendarDialog.value = true
                 },
+                onClickTime = {
+                    showTimeDialog.value = true
+                },
                 onClickCategory = {
                     dialogViewModel.showCategoryDialog()
                 },
@@ -172,18 +179,25 @@ fun TaskScreen(
                 task = editTask
             )
 
-            // TODO: .ToLocalDate nad editDate probati
-
             CalendarDialog(
                 showDialog = showCalendarDialog,
                 editDate = editTask.value.date?.toLocalDate(),
                 isForEdit = true,
                 onEdit = {
                     editTask.value = editTask.value.copy(
-                        date = selectedDate?.atStartOfDay()
+                        date = selectedDate?.atTime(editTask.value.date!!.hour,editTask.value.date!!.minute)
                     )
                 },
                 dialogViewModel = dialogViewModel
+            )
+
+            TimeDialog(
+                showDialog = showTimeDialog,
+                onSubmit = {
+                    editTask.value = editTask.value.copy(
+                        date = editTask.value.date!!.toLocalDate().atTime(it.hour,it.minute)
+                    )
+                }
             )
 
             CategoryDialog(
@@ -236,6 +250,7 @@ private fun Content(
     task:Task,
     onEnable:() -> Boolean,
     onClickCalendar:() -> Unit,
+    onClickTime:() -> Unit,
     onClickCategory:() -> Unit,
     onClickPriority:() -> Unit,
     onDeleteTask:() -> Unit,
@@ -247,13 +262,31 @@ private fun Content(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
+
+            // TASK DATE
+
             ItemRow(
                 icon = R.drawable.calendar_outline,
                 contentDescription = "Calendar",
-                text = " Task Time:",
-                btnText = task.date?.toLocalDate().toString(),
+                text = " Task Date:",
+                btnText = task.date?.toLocalDate()!!.formatDate(),
                 onClick = {
                     onClickCalendar()
+                },
+                content = {}
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // TASK TIME
+
+            ItemRow(
+                icon = R.drawable.timer,
+                contentDescription = "Timer",
+                text = " Task Time:",
+                btnText = task.date.formatDateTime(),
+                onClick = {
+                    onClickTime()
                 },
                 content = {}
             )

@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.AuthResult
 import com.plavsic.taskly.core.Response
+import com.plavsic.taskly.navigation.BottomNavigationItem
 import com.plavsic.taskly.navigation.NavigationGraph
 import com.plavsic.taskly.ui.shared.auth.AuthenticationButton
 import com.plavsic.taskly.ui.shared.auth.InputSection
@@ -123,7 +124,10 @@ fun LoginScreen(
         onSuccess = {
             loginViewModel.createUserDocument(
                 onSuccess = {
-                    navController.navigate(NavigationGraph.MainScreen.route)
+                    navController.navigate(NavigationGraph.MainScreen.route) {
+                        launchSingleTop = true
+                        popUpTo(NavigationGraph.StartScreen.route) { inclusive = true }
+                    }
                 },
                 onFailure = {}
             )

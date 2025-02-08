@@ -145,46 +145,6 @@ fun ProfileScreen(
                 fontSize = 18.sp
             )
 
-            // Tasks Left and Done
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth(),
-//                horizontalArrangement = Arrangement.Center
-//            ) {
-//                TextButton(
-//                    shape = RoundedCornerShape(6.dp),
-//                    contentPadding = PaddingValues(horizontal = 35.dp, vertical = 17.dp),
-//                    colors = ButtonDefaults.textButtonColors(
-//                        containerColor = DarkerGray,
-//                        contentColor = Color.White
-//                    ),
-//                    onClick = {}
-//                ) {
-//                    Text(
-//                        text = "${userData.tasksLeft} tasks left"
-//                    )
-//                }
-//
-//                Spacer(modifier = Modifier.width(20.dp))
-//
-//                TextButton(
-//                    shape = RoundedCornerShape(6.dp),
-//                    contentPadding = PaddingValues(horizontal = 35.dp, vertical = 17.dp),
-//                    colors = ButtonDefaults.textButtonColors(
-//                        containerColor = DarkerGray,
-//                        contentColor = Color.White
-//                    ),
-//                    onClick = {}
-//                ) {
-//                    Text(
-//                        text = "${userData.tasksDone} tasks done"
-//                    )
-//                }
-//            }
-
-
-//            Spacer(modifier = Modifier.height(20.dp))
-
             // Account
 
             Column(
@@ -234,7 +194,8 @@ fun ProfileScreen(
                     onClick = {
                         profileViewModel.logOut()
                         navController.navigate(NavigationGraph.StartScreen.route){
-                            popUpTo(NavigationGraph.StartScreen.route) {
+                            launchSingleTop = true
+                            popUpTo(NavigationGraph.MainScreen.route) {
                                 inclusive = true
                             }
                         }
