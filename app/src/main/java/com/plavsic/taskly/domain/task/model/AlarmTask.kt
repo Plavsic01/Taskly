@@ -4,8 +4,8 @@ import java.time.LocalDateTime
 
 data class AlarmTask(
     val taskId:String,
-    val time:LocalDateTime?,
-    val message:String
+    val title:String,
+    val time:LocalDateTime?
 ) {
     override fun hashCode(): Int {
         return taskId.hashCode()
@@ -18,8 +18,8 @@ data class AlarmTask(
         other as AlarmTask
 
         if (taskId != other.taskId) return false
+        if (title != other.title) return false
         if (time != other.time) return false
-        if (message != other.message) return false
 
         return true
     }

@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -126,14 +127,13 @@ fun ProfileScreen(
 
             // User Photo
 
-            Log.i("USERDATA",userData.image)
-
             AsyncImage(
                 modifier = Modifier
                     .size(85.dp)
                     .clip(shape = CircleShape),
                 model = userData.image,
-                contentDescription = "Avatar"
+                contentDescription = "Avatar",
+                contentScale = ContentScale.Crop
             )
 
             // E-mail
@@ -234,9 +234,14 @@ fun ProfileScreen(
                                     accountName.value = ""
                                 },
                                 onClickBtn2 = {
-                                    profileViewModel.updateUsername(accountName.value)
-                                    showAccountDialog.value = false
-                                    accountName.value = ""
+                                    if(accountName.value.isNotEmpty()) {
+                                        profileViewModel.updateUsername(accountName.value)
+                                        showAccountDialog.value = false
+                                        accountName.value = ""
+                                    }else {
+                                        Toast.makeText(context,"Account name cannot be empty!",
+                                            Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             )
                         }

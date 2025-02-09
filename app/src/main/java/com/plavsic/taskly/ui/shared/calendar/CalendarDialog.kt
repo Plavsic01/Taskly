@@ -30,6 +30,8 @@ fun CalendarDialog(
     if(showDialog.value){
         if(isForEdit){
             dialogViewModel.setSelectedDate(editDate)
+        }else {
+            dialogViewModel.setSelectedDate(LocalDate.now())
         }
         Dialog(
             onDismissRequest = {

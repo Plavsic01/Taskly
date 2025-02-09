@@ -3,6 +3,7 @@ package com.plavsic.taskly.data.task.repository
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.domain.task.model.Task
@@ -98,6 +99,7 @@ class TaskRepositoryImpl @Inject constructor(
 
     }
 
+
     override suspend fun updateTask(task: Task) {
         val taskMap = hashMapOf(
             "taskId" to task.taskId,
@@ -124,8 +126,14 @@ class TaskRepositoryImpl @Inject constructor(
             ?.await()
     }
 
-    override suspend fun deleteTask(taskId:String) {
+    override suspend fun deleteAlertSchedule(taskId: String) {
+        getCollection()
+            ?.document(taskId)
+            ?.update("notificationDateTime",FieldValue.delete())
+            ?.await()
+    }
 
+    override suspend fun deleteTask(taskId: String) {
         getCollection()
             ?.document(taskId)
             ?.delete()

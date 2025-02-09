@@ -1,6 +1,8 @@
 package com.plavsic.taskly.ui.loginScreen
 
-import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,13 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.AuthResult
 import com.plavsic.taskly.core.Response
-import com.plavsic.taskly.navigation.BottomNavigationItem
 import com.plavsic.taskly.navigation.NavigationGraph
 import com.plavsic.taskly.ui.shared.auth.AuthenticationButton
 import com.plavsic.taskly.ui.shared.auth.InputSection
@@ -41,6 +43,8 @@ fun LoginScreen(
     navController:NavHostController,
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
+
+    val context = LocalContext.current
 
     val isEnabled = remember { mutableStateOf(true) }
     val email = remember { mutableStateOf("") }
@@ -105,10 +109,17 @@ fun LoginScreen(
         Row {
             Text(
                 fontSize = 12.sp,
-                text = "Don't have an account?",
+                text = "Don't have an account? ",
                 color = Gray
             )
             Text(
+                modifier = Modifier
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        navController.navigate(NavigationGraph.RegisterScreen.route)
+                    },
                 fontSize = 12.sp,
                 text = "Register",
                 color = WhiteWithOpacity87
@@ -132,8 +143,9 @@ fun LoginScreen(
                 onFailure = {}
             )
         },
-        onError = {
-            Log.i("Error",it)
+        onError = { err ->
+            isEnabled.value = true
+            Toast.makeText(context,err,Toast.LENGTH_SHORT).show()
         }
 
     )
@@ -158,20 +170,16 @@ fun LoginState(
         flow.collect {
             when (it) {
                 is Response.Loading -> {
-                    Log.i("Login state -> ", "Loading")
                     isLoading.value = true
                 }
 
                 is Response.Success -> {
-                    Log.i("Login",it.data.user!!.email.toString())
-                    Log.i("Login state -> ", "Success")
                     isLoading.value = false
                     onSuccess()
                 }
 
                 is Response.Error -> {
                     it.message
-                    Log.e("Login state -> ", it.message)
                     isLoading.value = false
                     onError(it.message)
                 }

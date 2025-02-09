@@ -63,6 +63,12 @@ class TaskViewModel @Inject constructor(
         }
     }
 
+    fun deleteAlertSchedule(taskId: String) {
+        viewModelScope.launch {
+            taskRepository.deleteAlertSchedule(taskId)
+        }
+    }
+
     fun deleteTask(taskId:String) {
         viewModelScope.launch {
             taskRepository.deleteTask(taskId)

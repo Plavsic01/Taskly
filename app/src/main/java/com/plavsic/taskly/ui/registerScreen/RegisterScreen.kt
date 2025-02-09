@@ -1,6 +1,9 @@
 package com.plavsic.taskly.ui.registerScreen
 
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,9 +29,7 @@ import androidx.navigation.NavHostController
 import com.google.firebase.auth.AuthResult
 import com.plavsic.taskly.core.Response
 import com.plavsic.taskly.navigation.NavigationGraph
-import com.plavsic.taskly.ui.shared.auth.AuthenticationButton
 import com.plavsic.taskly.ui.shared.auth.InputSection
-import com.plavsic.taskly.ui.shared.auth.SeparatorLine
 import com.plavsic.taskly.ui.shared.common.TasklyButton
 import com.plavsic.taskly.ui.theme.Gray
 import com.plavsic.taskly.ui.theme.Purple
@@ -43,6 +44,8 @@ fun RegisterScreen(
     navController: NavHostController,
     registerViewModel: RegisterViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val isEnabled = remember { mutableStateOf(true) }
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
@@ -96,9 +99,10 @@ fun RegisterScreen(
                     modifier = Modifier
                         .fillMaxWidth(),
                     onClick = {
-                        // Enhance this check (email as well if exists
                         if(password.value == confirmPassword.value){
                             registerViewModel.register(email.value, password.value)
+                        }else {
+                            Toast.makeText(context,"Passwords must match",Toast.LENGTH_SHORT).show()
                         }
                     },
                     text = "Register",
@@ -114,10 +118,17 @@ fun RegisterScreen(
         Row {
             Text(
                 fontSize = 12.sp,
-                text = "Already have an account?",
+                text = "Already have an account? ",
                 color = Gray
             )
             Text(
+                modifier = Modifier
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        navController.navigate(NavigationGraph.LoginScreen.route)
+                    },
                 fontSize = 12.sp,
                 text = "Login",
                 color = WhiteWithOpacity87
@@ -141,8 +152,9 @@ fun RegisterScreen(
                 onFailure = {}
             )
         },
-        onError = {
-            Log.i("Error",it)
+        onError = { err ->
+            isEnabled.value = true
+            Toast.makeText(context,err,Toast.LENGTH_SHORT).show()
         }
 
     )
@@ -165,18 +177,15 @@ fun RegisterState(
         flow.collect {
             when (it) {
                 is Response.Loading -> {
-                    Log.i("Register state -> ", "Loading")
                     isLoading.value = true
                 }
 
                 is Response.Success -> {
-                    Log.i("Register state -> ", "Success")
                     isLoading.value = false
                     onSuccess()
                 }
 
                 is Response.Error -> {
-                    Log.e("Register state -> ", it.message)
                     isLoading.value = false
                     onError(it.message)
                 }

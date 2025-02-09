@@ -3,8 +3,11 @@ package com.plavsic.taskly.ui.homeScreen
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -19,8 +22,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -74,6 +80,7 @@ fun HomeScreen(
     val tasksState = taskViewModel.tasksState.collectAsStateWithLifecycle()
     val userInfo = profileViewModel.userInfo.collectAsStateWithLifecycle()
     var userData by remember { mutableStateOf(UserInfo("","")) }
+//    val sortByDateAsc by remember { mutableStateOf(true) }
 
     Scaffold(
         modifier = Modifier
@@ -92,6 +99,10 @@ fun HomeScreen(
                 },
                 navigationIcon = {
                     Icon(
+                        modifier = Modifier
+                            .clickable {
+
+                            },
                         painter = painterResource(R.drawable.sort),
                         contentDescription = "Sort"
                     )
@@ -102,7 +113,8 @@ fun HomeScreen(
                             .size(42.dp)
                             .clip(shape = CircleShape),
                         model = userData.image,
-                        contentDescription = "Avatar"
+                        contentDescription = "Avatar",
+                        contentScale = ContentScale.Crop
                     )
                 }
             )
@@ -125,6 +137,7 @@ fun HomeScreen(
                         }){
                         Column(
                             modifier = Modifier
+                                .verticalScroll(rememberScrollState())
                                 .fillMaxSize()
                                 .padding(top = 70.dp, bottom = 100.dp),
                             verticalArrangement = Arrangement.Top
@@ -158,7 +171,7 @@ fun HomeScreen(
                                     task.date?.toLocalDate() == LocalDate.now() && !task.isCompleted
                                 },
                                 min = 0.dp,
-                                max = 300.dp,
+                                max = 1000.dp, //350
                                 onClick = {task ->
                                     val encodedTask = Uri.encode(GsonInstance.gson.toJson(task))
                                     navController.navigate("${NavigationGraph.TaskScreen.route}/$encodedTask")
@@ -191,8 +204,8 @@ fun HomeScreen(
                                 tasks = list.filter { task ->
                                     task.isCompleted && task.date?.toLocalDate() == LocalDate.now()
                                 },
-                                min = 100.dp,
-                                max = 200.dp,
+                                min = 0.dp,
+                                max = 1000.dp,
                                 onClick = {task ->
                                     val encodedTask = Uri.encode(GsonInstance.gson.toJson(task))
                                     navController.navigate("${NavigationGraph.TaskScreen.route}/$encodedTask")
@@ -242,13 +255,15 @@ private fun NoDataView() {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TasksLazyColumn(
     tasks: List<Task>,
     min:Dp,
     max:Dp,
     isForAlerts:Boolean = false,
-    onClick:(Task) -> Unit
+    onClick:(Task) -> Unit,
+    onLongPress:(Task) -> Unit = {}
 ) {
     LazyColumn(
         modifier = Modifier
@@ -258,9 +273,15 @@ fun TasksLazyColumn(
     ) {
         items(tasks) { task ->
             TaskView(
-                modifier = Modifier.clickable {
-                    onClick(task)
-                },
+                modifier = Modifier
+                    .combinedClickable(
+                        onClick = {
+                            onClick(task)
+                        },
+                        onLongClick = {
+                            onLongPress(task)
+                        }
+                    ),
                 task = task,
                 isForAlerts = isForAlerts,
             )

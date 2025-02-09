@@ -7,11 +7,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,9 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,7 +57,6 @@ import com.plavsic.taskly.ui.shared.task.TaskIcon
 import com.plavsic.taskly.ui.shared.task.TaskViewModel
 import com.plavsic.taskly.ui.taskScreen.TaskDialog
 import com.plavsic.taskly.ui.theme.Background
-import com.plavsic.taskly.ui.theme.LightWhite
 import com.plavsic.taskly.utils.conversion.formatDate
 import com.plavsic.taskly.utils.conversion.formatTime
 import java.time.LocalDate
@@ -85,6 +80,7 @@ fun NotificationScreen(
     var tasks by remember { mutableStateOf<List<Task>>(emptyList()) }
 
     val showAlertDialog = remember { mutableStateOf(false) }
+    val showDeleteAlert = remember { mutableStateOf(false) }
     val showTimeDialog = remember { mutableStateOf(false) }
     val showCalendarDialog = remember { mutableStateOf(false) }
     var shouldShowSettingsDialog by remember { mutableStateOf(false) }
@@ -162,8 +158,15 @@ fun NotificationScreen(
                     max = 510.dp,
                     onClick = { task ->
                         // Open Alert Dialog
-                        alarmTask.value = AlarmTask(taskId = task.taskId, time = task.date, message = "Gas")
+                        alarmTask.value = AlarmTask(taskId = task.taskId, title = task.title, time = task.date)
                         showAlertDialog.value = true
+                    },
+                    onLongPress = {task ->
+                        // Show Delete Schedule dialog
+                        if(task.alert != null) {
+                            alarmTask.value = AlarmTask(taskId = task.taskId, title = task.title, time = null)
+                            showDeleteAlert.value = true
+                        }
                     }
                 )
             }
@@ -234,9 +237,6 @@ fun NotificationScreen(
                  }
              )
          }
-
-
-
      })
 
     CalendarDialog(
@@ -254,6 +254,42 @@ fun NotificationScreen(
                 shouldShowSettingsDialog = true
             }else {
                 selectedTime = time
+            }
+        }
+    )
+
+    TaskDialog(
+        showDialog = showDeleteAlert,
+        title = "Delete scheduled Alert?",
+        height = 200.dp,
+        content = {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceAround
+            ) {
+
+                Text(
+                    text = "Are you sure you want to delete this alert?",
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+
+                DualActionButtons(
+                    modifier = Modifier
+                        .weight(1f),
+                    btn1Text = "Cancel",
+                    btn2Text = "Delete Alert",
+                    onClickBtn1 = {
+                        showDeleteAlert.value = false
+                    },
+                    onClickBtn2 = {
+                        showDeleteAlert.value = false
+                        taskViewModel.deleteAlertSchedule(alarmTask.value!!.taskId)
+                        alarmScheduler.cancel(task = alarmTask.value!!)
+                    }
+                )
             }
         }
     )
@@ -306,7 +342,7 @@ private fun createNotification(
 ) {
     val time = LocalTime.of(selectedTime.hour, selectedTime.minute)
     val dateTme = LocalDateTime.of(selectedDateState, time)
-    alarmTask.value = AlarmTask(taskId = alarmTask.value!!.taskId, time = dateTme, message = "")
+    alarmTask.value = AlarmTask(taskId = alarmTask.value!!.taskId, title = alarmTask.value!!.title , time = dateTme)
     alarmTask.value?.let(alarmScheduler::schedule)
     taskViewModel.updateAlertSchedule(alarmTask.value!!.taskId,dateTme)
     Toast.makeText(context, "Notification created!", Toast.LENGTH_SHORT).show()

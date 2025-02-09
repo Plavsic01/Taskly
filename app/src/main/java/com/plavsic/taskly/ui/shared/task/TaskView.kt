@@ -5,9 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -63,7 +61,7 @@ fun TaskView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = if(task.date?.toLocalDate() == LocalDate.now()) "Today At " + task.date!!.formatDateTime()
+                text = if(task.date?.toLocalDate() == LocalDate.now()) "Today at\n" + task.date!!.formatDateTime()
                     else task.date!!.toLocalDate().formatDate() + ",\n" + task.date.formatDateTime(),
                 fontSize = 14.sp,
                 color = LightWhite,

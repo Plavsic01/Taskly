@@ -19,7 +19,7 @@ class AlarmSchedulerImpl(
     @SuppressLint("MissingPermission")
     override fun schedule(task: AlarmTask) {
         val intent = Intent(context,AlarmReceiver::class.java).apply {
-            putExtra("MESSAGE",task.message)
+            putExtra("TITLE",task.title)
         }
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,

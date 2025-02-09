@@ -10,5 +10,6 @@ interface TaskRepository {
     suspend fun addTask(task:Task)
     suspend fun updateTask(task: Task)
     suspend fun updateAlertSchedule(taskId:String,alert:LocalDateTime)
+    suspend fun deleteAlertSchedule(taskId:String)
     suspend fun deleteTask(taskId: String)
 }
