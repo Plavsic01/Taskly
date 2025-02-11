@@ -59,9 +59,6 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.kotlinx.coroutines.play.services)
 
-//    JWT
-    implementation(libs.java.jwt)
-
 //   Authentication with Credential Manager
     implementation(libs.play.services.auth.v2120)
     implementation(libs.androidx.credentials)
@@ -78,7 +75,7 @@ dependencies {
 //    Coil Image
     implementation(libs.coil.compose)
 
-
+//    Room Database
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     annotationProcessor(libs.androidx.room.compiler)
