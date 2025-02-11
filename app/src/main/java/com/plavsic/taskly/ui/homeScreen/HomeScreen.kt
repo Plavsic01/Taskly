@@ -80,7 +80,6 @@ fun HomeScreen(
     val tasksState = taskViewModel.tasksState.collectAsStateWithLifecycle()
     val userInfo = profileViewModel.userInfo.collectAsStateWithLifecycle()
     var userData by remember { mutableStateOf(UserInfo("","")) }
-//    val sortByDateAsc by remember { mutableStateOf(true) }
 
     Scaffold(
         modifier = Modifier
@@ -97,16 +96,7 @@ fun HomeScreen(
                         fontSize = 20.sp
                     )
                 },
-                navigationIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .clickable {
-
-                            },
-                        painter = painterResource(R.drawable.sort),
-                        contentDescription = "Sort"
-                    )
-                },
+                navigationIcon = {},
                 actions = {
                     AsyncImage(
                         modifier = Modifier
@@ -169,7 +159,7 @@ fun HomeScreen(
                             TasksLazyColumn(
                                 tasks = list.filter { task ->
                                     task.date?.toLocalDate() == LocalDate.now() && !task.isCompleted
-                                },
+                                }.sortedBy { it.date },
                                 min = 0.dp,
                                 max = 1000.dp, //350
                                 onClick = {task ->
@@ -203,7 +193,7 @@ fun HomeScreen(
                             TasksLazyColumn(
                                 tasks = list.filter { task ->
                                     task.isCompleted && task.date?.toLocalDate() == LocalDate.now()
-                                },
+                                }.sortedBy { it.date },
                                 min = 0.dp,
                                 max = 1000.dp,
                                 onClick = {task ->

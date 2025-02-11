@@ -151,7 +151,7 @@ fun CalendarScreen(
 //            CircularProgressIndicator()
         },
         onSuccess = { taskList ->
-            tasksState = taskList
+            tasksState = taskList.sortedBy { it.date }
         },
         onError = {}
     )

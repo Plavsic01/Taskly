@@ -226,14 +226,19 @@ fun NotificationScreen(
                      showAlertDialog.value = false
                  },
                  onClickBtn2 = {
-                     createNotification(
-                         taskViewModel,
-                         selectedTime,
-                         selectedDateState,
-                         alarmTask,
-                         alarmScheduler,
-                         context)
-                     showAlertDialog.value = false
+                     if(TaskNotification.hasNotificationPermission(context)) {
+                         createNotification(
+                             taskViewModel,
+                             selectedTime,
+                             selectedDateState,
+                             alarmTask,
+                             alarmScheduler,
+                             context)
+
+                         showAlertDialog.value = false
+                     }else {
+                         shouldShowSettingsDialog = true
+                     }
                  }
              )
          }
@@ -301,7 +306,7 @@ fun NotificationScreen(
 //            CircularProgressIndicator()
         },
         onSuccess = { taskList ->
-            tasks = taskList
+            tasks = taskList.sortedBy { it.date }
         },
         onError = {}
     )

@@ -76,22 +76,3 @@ class TaskViewModel @Inject constructor(
     }
 
 }
-
-
-// Ekstenzija za Query -> Flow<QuerySnapshot>
-//fun Query.toFlow(): Flow<QuerySnapshot> = callbackFlow {
-//    val listener = addSnapshotListener { snapshot, exception ->
-//        if (exception != null) {
-//            // Propagacija greške kroz Flow
-//            close(exception)
-//            return@addSnapshotListener
-//        }
-//        if (snapshot != null) {
-//            // Emitovanje podataka kroz Flow
-//            trySend(snapshot).isSuccess
-//        }
-//    }
-//    // Zatvaranje listener-a kada Flow završi
-//    awaitClose { listener.remove() }
-//}
-
