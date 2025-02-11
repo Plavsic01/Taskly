@@ -101,6 +101,8 @@ Taskly consists of four main screens:
 </p>
 
 
+For all screenshots check **/Screenshots** folder
+
 ## Acknowledgements
 
 Design used for this project is from [Figma](https://shorturl.at/YMbPI).
